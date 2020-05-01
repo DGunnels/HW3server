@@ -3,8 +3,13 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var bcrypt = require('bcrypt');
 
-mongoose.Promise = global.Promise;
 
+try {
+    mongoose.Promise = global.Promise;
+
+} catch (err) {
+    console.error(err);
+}
 mongoose.connect(process.env.DB, { useNewUrlParser: true });
 mongoose.set('useCreateIndex', true);
 

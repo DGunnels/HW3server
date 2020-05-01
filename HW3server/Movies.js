@@ -1,8 +1,12 @@
 "use strict";
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-mongoose.Promise = global.Promise 
+try {
+    mongoose.Promise = global.Promise;
 
+} catch (err) {
+    console.error(err);
+}
 
 mongoose.Promise = global.Promise;
 mongoose.connect(process.env.DB, { userNewUrlParser: true });
