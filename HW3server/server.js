@@ -24,7 +24,7 @@ function getJSONObject(req) {
     var json = {
         status: status,
         headers: "No Headers",
-        key: process.env.UNIQUE_KEY,
+        key: process.env.SECRET_KEY,
         body: "No Body",
         message: message
     };
