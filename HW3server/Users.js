@@ -10,8 +10,8 @@ mongoose.set('useCreateIndex', true);
 // user schema
 var UserSchema = new Schema({
     username: { type: String, required: true, index: { unique: true } },
-    password: { type: String, required: true, select: false },
-    email: { type: String, required: true }
+    email: { type: String, required: true },
+    password: { type: String, required: true, select: false }
 });
 
 // hash the password before the user is saved
