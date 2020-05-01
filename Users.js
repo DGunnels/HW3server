@@ -12,44 +12,93 @@ const connectOptions = {
  
 }
 
+const MongoClient = require('mongodb').MongoClient;
+const uri = "mongodb+srv://<username>:<password>@webapi2020cuden-65lgl.mongodb.net/test?retryWrites=true&w=majority";
+const client = new MongoClient(uri, { useNewUrlParser: true });
+client.connect(err => {
+    const collection = client.db("test").collection("devices");
+    // perform actions on the collection object
+    client.close();
+});
+
 
 
 
 mongoose.Promise = global.Promise;
 
-mongoose.connect(process.env.DB, connectOptions);
+mongoose.connect(process.env.DB, connectOptions).then(
+    () => {
+        // user schema
+        var UserSchema = new Schema({
+            username: { type: String, required: true, index: { unique: true } },
+            email: { type: String, required: true },
+            password: { type: String, required: true, select: false }
+        });
 
-// user schema
-var UserSchema = new Schema({
-    username: { type: String, required: true, index: { unique: true } },
-    email: { type: String, required: true },
-    password: { type: String, required: true, select: false }
-});
+        // hash the password before the user is saved
+        UserSchema.pre('save', function (next) {
+            var user = this;
 
-// hash the password before the user is saved
-UserSchema.pre('save', function (next) {
-    var user = this;
+            // hash the password only if the password has been changed or user is new
+            if (!user.isModified('password')) return next();
 
-    // hash the password only if the password has been changed or user is new
-    if (!user.isModified('password')) return next();
+            // generate the hash
+            bcrypt.hash(user.password, saltRound).then(function (err, hash) {
+                if (err) return next(err);
 
-    // generate the hash
-    bcrypt.hash(user.password, saltRound).then(function (err, hash) {
-        if (err) return next(err);
+                // change the password to the hashed version
+                user.password = hash;
+                next();
+            });
+        });
 
-        // change the password to the hashed version
-        user.password = hash;
-        next();
-    });
-});
+        UserSchema.methods.comparePassword = function (password, callback) {
+            var user = this;
 
-UserSchema.methods.comparePassword = function (password, callback) {
-    var user = this;
+            bcrypt.compare(password, user.password, function (err, isMatch) {
+                callback(isMatch);
+            });
+        };
 
-    bcrypt.compare(password, user.password, function (err, isMatch) {
-        callback(isMatch);
-    });
-};
+// return the model
+
+    },
+    err => { }
+);
+
+
+
+//// user schema
+//var UserSchema = new Schema({
+//    username: { type: String, required: true, index: { unique: true } },
+//    email: { type: String, required: true },
+//    password: { type: String, required: true, select: false }
+//});
+
+//// hash the password before the user is saved
+//UserSchema.pre('save', function (next) {
+//    var user = this;
+
+//    // hash the password only if the password has been changed or user is new
+//    if (!user.isModified('password')) return next();
+
+//    // generate the hash
+//    bcrypt.hash(user.password, saltRound).then(function (err, hash) {
+//        if (err) return next(err);
+
+//        // change the password to the hashed version
+//        user.password = hash;
+//        next();
+//    });
+//});
+
+//UserSchema.methods.comparePassword = function (password, callback) {
+//    var user = this;
+
+//    bcrypt.compare(password, user.password, function (err, isMatch) {
+//        callback(isMatch);
+//    });
+//};
 
 // return the model
 module.exports = mongoose.model('User', UserSchema);
