@@ -3,16 +3,21 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var bcrypt = require('bcrypt');
 const saltRound = 10;
-
-
-try {
-    mongoose.Promise = global.Promise;
-
-} catch (err) {
-    console.error(err);
+const connectOptions = {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    user: process.env.dbUser,
+    pass: process.env.dbPass,
+    dbName: 'HW3'
+ 
 }
-mongoose.connect(process.env.DB, { useNewUrlParser: true });
-mongoose.set('useCreateIndex', true);
+
+
+
+
+mongoose.Promise = global.Promise;
+
+mongoose.connect(process.env.DB, connectOptions);
 
 // user schema
 var UserSchema = new Schema({
