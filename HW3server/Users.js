@@ -2,6 +2,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var bcrypt = require('bcrypt');
+const saltRound = 10;
 
 
 try {
@@ -28,7 +29,7 @@ UserSchema.pre('save', function (next) {
     if (!user.isModified('password')) return next();
 
     // generate the hash
-    bcrypt.hash(user.password, process.env.SECRET_KEY, null, function (err, hash) {
+    bcrypt.hash(user.password, saltRound).then(function (err, hash) {
         if (err) return next(err);
 
         // change the password to the hashed version
