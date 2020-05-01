@@ -10,7 +10,7 @@ dotenv.config();
 
 var opts = {};
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderWithScheme("jwt");
-opts.secretOrKey = process.env.UNIQUE_KEY;
+opts.secretOrKey = process.env.SECRET_KEY;
 
 // console.debug('Here' + opts.secretOrKey);
 passport.use(new JwtStrategy(opts, function (jwt_payload, done) {
