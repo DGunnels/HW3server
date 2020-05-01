@@ -6,8 +6,6 @@ var passport = require('passport');
 var authJwtController = require('./auth_jwt');
 var jwt = require('jsonwebtoken');
 const cors = require('cors');
-const { MongoClient } = require('mongodb');
-
 /*
 var dotenv = require('dotenv');
 dotenv.config();
@@ -22,23 +20,13 @@ app.use(passport.initialize());
 
 var router = express.Router();
 
-function database() {
-    const MongoClient = require('mongodb').MongoClient;
-    const uri = "mongodb+srv://Admin:" + process.env.dbpass + "@webapi2020cuden-65lgl.mongodb.net/test?retryWrites=true&w=majority";
-    const client = new MongoClient(uri, { useNewUrlParser: true });
-    client.connect(err => {
-        const collection = client.db("test").collection("devices");
-        // perform actions on the collection object
-        client.close();
-    });
-
-}
-
 function getJSONObject(req) {
     var json = {
+        status: status,
         headers: "No Headers",
         key: process.env.UNIQUE_KEY,
-        body: "No Body"
+        body: "No Body",
+        message: message
     };
 
     if (req.body != null) {
@@ -57,6 +45,28 @@ router.route('/')
         res.send('Error: 405 \n Unsupported HTTP Method');
     });
 
+
+router.route('/users/:userId')
+    .get(authJwtController.isAuthenticated, function (req, res) {
+        var id = req.params.userId;
+        User.findById(id, function (err, user) {
+            if (err) res.send(err);
+
+            var userJson = JSON.stringify(user);
+            // return that user
+            res.json(user);
+        });
+    });
+
+router.route('/users')
+    .get(authJwtController.isAuthenticated, function (req, res) {
+        User.find(function (err, users) {
+            if (err) res.send(err);
+            // return the users
+            res.json(users);
+        });
+    });
+
 router.route('/post')
     .post(authJwtController.isAuthenticated, function (req, res) {
         console.log(req.body);
@@ -67,8 +77,7 @@ router.route('/post')
         }
         var o = getJSONObject(req);
         res.json(o);
-    }
-    );
+    });
 
 router.route('/postjwt')
     .post(authJwtController.isAuthenticated, function (req, res) {
@@ -79,182 +88,121 @@ router.route('/postjwt')
             res = res.type(req.get('Content-Type'));
         }
         res.send(req.body);
-    }
-    );
+    });
 
 router.post('/signup', function (req, res) {
     if (!req.body.username || !req.body.password) {
         res.json({ success: false, msg: 'Please pass username and password.' });
     } else {
-        var newUser = {
-            username: req.body.username,
-            password: req.body.password
-        };
+        var user = new User();
+        user.name = req.body.username;
+        user.email = req.body.email;
+        user.password = req.body.password;
+
         // save the user
-        db.save(newUser); //no duplicate checking
-        res.json({ success: true, msg: 'Successful created new user.' });
+        user.save(function (err) {
+            if (err) {
+                // check dupes
+                if (err.cod == 11000)
+                    return res.json({ success: false, message: 'A user with that username already exists!' });
+                else
+                    return res.send(err);
+            } //no duplicate checking
+            res.json({ success: true, msg: 'Successfully created new user.' });
+        });
     }
 });
 
-router.post('/signin', function (req, res) {
+        router.post('/signin', function (req, res) {
+            var userLogin = new User();
+            userLogin.username = req.body.username;
+            userLogin.password = req.body.password;
 
-    var user = db.findOne(req.body.username);
+            User.findOne({ username: userLogin.username }).select('username password').exec(function (err, user) {
+                if (err) res.send(err);
 
-    if (!user) {
-        res.status(401).send({ success: false, msg: 'Authentication failed. User not found.' });
-    }
-    else {
-        // check if password matches
-        if (req.body.password == user.password) {
-            var userToken = { id: user.id, username: user.username };
-            var token = jwt.sign(userToken, process.env.UNIQUE_KEY);
-            res.json({ success: true, token: 'JWT ' + token });
-        }
-        else {
-            res.status(401).send({ success: false, msg: 'Authentication failed. Wrong password.' });
-        }
-    };
-});
-
-router.route('/movies')
-    .get(function (req, res) {
-        var queryToken;
-        if (Object.keys(req.query).length == 0) {
-            queryToken = 'No Query Parameters'
-        } else {
-            queryToken = req.query;
-        };
-        var headerToken;
-        if (Object.keys(req.headers).length == 0) {
-            headertoken = 'No Headers'
-        } else {
-            headerToken = req.headers;
-        };
-        res.json({
-            status: 200,
-            message: 'GET movies',
-            headers: headerToken,
-            query: queryToken,
-            env: process.env.UNIQUE_KEY
+                user.comparePass(userLogin.passport, function (isMatch) {
+                    if (isMatch) {
+                        var userToken = { id: user._id, username: user.username };
+                        var token = jwt.sign(userToken, process.env.SECRET_KEY);
+                        res.json({ success: true, token: 'JWT' + token });
+                    }
+                    else {
+                        res.status(401).send({ success: false, message: 'Authentication failed.' });
+                    }
+                });
+            });
         })
-    })
-    .put(authJwtController.isAuthenticated, function (req, res) {
 
-        var queryToken;
+        router.route('/movies')
+            .put(authJwtController.isAuthenticated, function (req, res) {
 
-        if (Object.keys(req.query).length == 0) {
-            queryToken = 'No Query Parameters'
-        } else {
-            queryToken = req.query;
-        };
+                Movie.findById(req.body.movie_id, function (err, movie) {
 
-        var headerToken;
+                    if (err) res.send(err);
 
-        if (Object.keys(req.headers).length == 0) {
-            headertoken = 'No Headers'
-        } else {
-            headerToken = req.headers;
-        };
+                    //update the movie info only if it is new
+                    if (req.body.movietitle) movie.Title = req.body.movietitle;
+                    if (req.body.releaseyear) movie.ReleaseYear = req.body.releaseyear;
+                    if (req.body.genre) movie.Genre = req.body.genre;
+                    if (req.body.actornamea) movie.ActorNameA = req.body.actornamea;
+                    if (req.body.actorchara) movie.ActorCharA = req.body.actorchara;
+                    if (req.body.actornameb) movie.ActorNameB = req.body.actornameb;
+                    if (req.body.actorcharb) movie.ActorCharB = req.body.actorcharb;
+                    if (req.body.actornamec) movie.ActorNameC = req.body.actornamec;
+                    if (req.body.actorcharc) movie.ActorCharC = req.body.actorcharc;
 
-        if (!req.body.movID) {
-            res.json({ sucess: false, message: 'Cannot process, please include id of movie' })
-        } else {
-            var movieToUpdate = {}
-            if (req.body.name) {
-                movieToUpdate.name = req.body.name
-            }
-            if (req.body.actor) {
-                movieToUpdate.actor = req.body.actor
-            }
-            db.update(req.body.movID, movieToUpdate);
+                    //save the movie
+                    movie.save(function (err) {
+                        if (err) res.send(err);
 
-            res.json({
-                status: 200,
-                message: 'Movie updated',
-                headers: headerToken,
-                query: queryToken,
-                env: process.env.UNIQUE_KEY
+                        res.json({ message: 'Movie has been updated!' });
+                    });
+
+
+                });
             })
-        }
-    })
-    .post(function (req, res) {
-        var queryToken;
+            .post(authJwtController.isAuthenticated, function (req, res) {
+                var queryToken;
 
-        if (Object.keys(req.query).length == 0) {
-            queryToken = 'No Query Parameters'
-        } else {
-            queryToken = req.query;
-        };
+                //Create a Movie
+                var movie = new Movie();
 
-        var headerToken;
+                movie.Title = req.body.movietitle;
+                movie.ReleaseYear = req.body.releaseyear;
+                movie.Genre = req.body.genre;
+                movie.ActorNameA = req.body.actornamea;
+                movie.ActorCharA = req.body.actorchara;
+                movie.ActorNameB = req.body.actornameb;
+                movie.ActorCharB = req.body.actorcharb;
+                movie.ActorNameC = req.body.actornamec;
+                movie.ActorCharC = req.body.actorcharc;
 
-        if (Object.keys(req.headers).length == 0) {
-            headertoken = 'No Headers'
-        } else {
-            headerToken = req.headers;
-        };
-
-
-        if (!req.body.movID || !req.body.name || !req.body.actor) {
-            res.json({ sucess: false, message: 'Please enter a valid id, name, and actor/actress' })
-        } else {
-            var newMovie = {
-                movID: req.body.movID,
-                name: req.body.name,
-                actor: req.body.actor
-            }
-            db.save(newMovie); // Don't check for dupes
-
-            res.json({
-                status: 200,
-                message: 'Movie saved',
-                headers: headerToken,
-                query: queryToken,
-                env: process.env.UNIQUE_KEY
+                movie.save(function (err) {
+                    if (err) {
+                        //duplicate entry
+                        if (err.code == 11000)
+                            return res.json({ sucess: false, message: 'This already exists!' });
+                        else
+                            return res.send(err);
+                    }
+                    res.json({ message: 'Movie has been created!' });
+                })
             })
-        }
+            .delete(authController.isAuthenticated, function (req, res) {
+                Movie.remove({
+                    _id: req.body.movie_id
+                }, function (err, movies) {
+                    if (err) return res.send(err);
 
-
-    })
-    .delete(authController.isAuthenticated, function (req, res) {
-        var queryToken;
-
-        if (Object.keys(req.query).length == 0) {
-            queryToken = 'No Query Parameters'
-        } else {
-            queryToken = req.query;
-        };
-
-        var headerToken;
-
-        if (Object.keys(req.headers).length == 0) {
-            headertoken = 'No Headers'
-        } else {
-            headerToken = req.headers;
-        };
-
-        if (!req.body.movID) {
-            res.json({ sucess: false, message: 'Cannot process, please include id of movie' })
-        } else {
-            db.remove(req.body.movID);
-
-            res.json({
-                status: 200,
-                message: 'Movie deleted',
-                headers: headerToken,
-                query: queryToken,
-                env: process.env.UNIQUE_KEY
+                    res.json({ message: "Sucessfully deleted the movie." });
+                });
             })
-        }
-
-    })
-    .all(function (req, res) {
-        res.status(405);
-        res.send('Error: 405 \n Unsupported HTTP Method');
-    });
+            .all(function (req, res) {
+                res.status(405);
+                res.send('Error: 405 \n Unsupported HTTP Method');
+            });
 
 
-app.use('/', router);
-app.listen(process.env.PORT || 8080);
-
-module.exports = app; // for testing
+        app.use('/', router);
+        app.listen(process.env.PORT || 8080);
