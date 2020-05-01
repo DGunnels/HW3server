@@ -9,7 +9,7 @@ const connectOptions = {
     user: process.env.dbUser,
     pass: process.env.dbPass,
     dbName: 'HW3'
- 
+
 }
 
 mongoose.Promise = global.Promise;
@@ -48,8 +48,8 @@ mongoose.connect(process.env.DB, connectOptions).then(
             });
         };
 
-// return the model
-
+        // return the model
+        module.exports = mongoose.model('User', UserSchema);
     },
     err => { }
 );
@@ -89,4 +89,4 @@ mongoose.connect(process.env.DB, connectOptions).then(
 //};
 
 // return the model
-module.exports = mongoose.model('User', UserSchema);
+//module.exports = mongoose.model('User', UserSchema);
