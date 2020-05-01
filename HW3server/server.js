@@ -189,7 +189,7 @@ router.post('/signup', function (req, res) {
                     res.json({ message: 'Movie has been created!' });
                 })
             })
-            .delete(authController.isAuthenticated, function (req, res) {
+            .delete(authJwtController.isAuthenticated, function (req, res) {
                 Movie.remove({
                     _id: req.body.movie_id
                 }, function (err, movies) {
