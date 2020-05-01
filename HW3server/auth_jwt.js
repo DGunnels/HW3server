@@ -1,3 +1,4 @@
+"use strict";
 // Load required packages
 var passport = require('passport');
 var JwtStrategy = require('passport-jwt').Strategy;
