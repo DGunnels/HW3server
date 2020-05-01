@@ -9,7 +9,6 @@ const connectOptions = {
     user: process.env.dbUser,
     pass: process.env.dbPass,
     dbName: 'HW3'
-
 }
 
 
@@ -40,22 +39,22 @@ UserSchema.pre('save', function (next) {
         if (err) return next(err);
 
         // hashtime with salt
-        bcrypt.hash(user.password, salt, function9err, hash){
+        bcrypt.hash(user.password, salt, function (err, hash) {
             if (err) return next(err);
 
             //override clear text with hash
             user.password = hash;
             next();
         });
-});
-
-UserSchema.methods.comparePassword = function (passwordEntered, callback) {
-    bcrypt.compare(passwordEntered, this.password, function (err, isMatch) {
-        if (err) return callback(err);
-        callback(null, isMatch);
     });
-};
-  
+
+    UserSchema.methods.comparePassword = function (passwordEntered, callback) {
+        bcrypt.compare(passwordEntered, this.password, function (err, isMatch) {
+            if (err) return callback(err);
+            callback(null, isMatch);
+        });
+    };
+});
 
 // return the model
 module.exports = mongoose.model('User', UserSchema);
