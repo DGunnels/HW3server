@@ -125,7 +125,7 @@ router.post('/signin', function (req, res) {
     User.findOne({ username: userNew.username }, function (err, user) {
         if (err) throw err;
 
-        res.send(Object.getOwnPropertyNames(User.schema));
+        res.send(typeof(User.schema.methods.comparePassword));
 
         //user.comparePassword(userNew.password, function (err, isMatch) {
         //    if (err) throw err;
