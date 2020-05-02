@@ -8,9 +8,24 @@ try {
     console.error(err);
 }
 
-mongoose.Promise = global.Promise;
-mongoose.connect(process.env.DB, { userNewUrlParser: true });
-mongoose.set('useCreateIndex', true);
+const connectOptions = {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    user: process.env.dbUser,
+    pass: process.env.dbPass,
+    dbName: 'HW3'
+}
+
+try {
+    mongoose.Promise = global.Promise;
+}
+catch (err) {
+    console.error(err);
+};
+
+mongoose.connect(process.env.DB, connectOptions, function (error) {
+    if (error) return next(error);
+});
 
 var MovieSchema = new Schema({
     "Title": { type: String, required: true },
