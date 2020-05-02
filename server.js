@@ -149,7 +149,6 @@ router.post('/signin', function (req, res) {
 
 router.route('/movies')
     .get(authJwtController.isAuthenticated, function (req, res) {
-        findMovie = req.body.findMovie;
         Movie.find(function (err, movies) {
             if (err) res.send(err);
             res.json(movies);
