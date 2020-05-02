@@ -4,8 +4,9 @@ var http = require('http');
 var bodyParser = require('body-parser');
 var passport = require('passport');
 var authJwtController = require('./auth_jwt');
-var User = require('./Users.js');
-var Movie = require('./Movies.js');
+var mongoose = require('mongoose'),
+    User = require('./Users');
+var Movie = require('./Movies');
 var jwt = require('jsonwebtoken');
 const cors = require('cors');
 /*
@@ -116,30 +117,35 @@ router.post('/signup', function (req, res) {
 });
 
 router.post('/signin', function (req, res) {
-    var userLogin = new User();
-    userLogin.username = req.body.username;
-    userLogin.password = req.body.password;
+    var user = new User();
+    user.username = req.body.username;
+    user.password = req.body.password;
+    User.findOne({ username: user.username }, function (err, user) {
+        if (err) throw err;
 
-    User.findOne({ username: userLogin.username }).select('username password').exec(function (err, User) {
-        if (err) res.send(err);
-        
-        userLogin.comparePass(userLogin.password, function (isMatch) {
-            if (isMatch) {
-                var userToken = { id: user._id, username: userLogin.username };
-                var token = jwt.sign(userToken, process.env.SECRET_KEY);
-                res.json({
-                    success: true,
-                    token: 'JWT' + token
-                });
-            } else {
-                res.status(401).send({
-                    success: false,
-                    message: 'Authentication failed.'
-                });
-            }
+        user.comparePassword(user.password, function (err, isMatch) {
+            if (err) throw err;
+            console.log(user.password, isMatch); // Determine if true
         });
     });
-})
+});
+
+
+        //userLogin.comparePass(userLogin.password, function (isMatch) {
+        //    if (isMatch) {
+        //        var userToken = { id: user._id, username: userLogin.username };
+        //        var token = jwt.sign(userToken, process.env.SECRET_KEY);
+        //        res.json({
+        //            success: true,
+        //            token: 'JWT' + token
+        //        });
+        //    } else {
+        //        res.status(401).send({
+        //            success: false,
+        //            message: 'Authentication failed.'
+        //        });
+        //    }
+        //});
 
 router.route('/movies')
     .put(authJwtController.isAuthenticated, function (req, res) {
