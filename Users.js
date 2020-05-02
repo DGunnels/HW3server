@@ -26,7 +26,7 @@ mongoose.connect(process.env.DB, connectOptions, function (error) {
 var UserSchema = new Schema({
     username: { type: String, required: true, index: { unique: true } },
     email: { type: String, required: true, index: { unique: true } },
-    password: { type: String, required: true, select: false }
+    password: { type: String, required: true, select: true }
 });
 
 // hash the password before the user is saved
