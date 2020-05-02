@@ -130,29 +130,11 @@ router.post('/signin', function (req, res) {
         //    if (err) throw err;
         //    console.log(user.password, isMatch); // Determine if true
         //});
-        
-        
-    });
-}
 
 
-        //userLogin.comparePass(userLogin.password, function (isMatch) {
-        //    if (isMatch) {
-        //        var userToken = { id: user._id, username: userLogin.username };
-        //        var token = jwt.sign(userToken, process.env.SECRET_KEY);
-        //        res.json({
-        //            success: true,
-        //            token: 'JWT' + token
-        //        });
-        //    } else {
-        //        res.status(401).send({
-        //            success: false,
-        //            message: 'Authentication failed.'
-        //        });
-        //    }
-        //});
     });
-})
+});
+
 
 router.route('/movies')
     .put(authJwtController.isAuthenticated, function (req, res) {
