@@ -117,28 +117,23 @@ router.post('/signup', function (req, res) {
 });
 
 router.post('/signin', function (req, res) {
-    userAuth = new User();
-    userAuth.username = req.body.username;
-    userAuth.password = req.body.password;
+    var userNew = new User();
+    userNew.username = req.body.username;
+    userNew.password = req.body.password;
 
-    User.findOne({ username: userAuth.username }.select('username, email, password').exec(function (err, user) {
-        if (err) res.send(err);
+    User.findOne({ username: userNew.username }, function (err, user) {
+        if (err) throw err;
 
-        user.comparePassword(userAuth.password, function (isMatch) {
-            if (isMatch) {
-                var userToken = { id: user._id, username: user.username };
-                var token = jwt.sign(userToken, process.env.SECRET_KEY);
-                res.json({
-                    success: true,
-                    token: 'JWT' + token
-                });
-            } else {
-                res.status(401).send({ success: false, message: 'Authentication Failed.' });
-            }
+        
+
+        user.comparePassword(userNew.password, function (err, isMatch) {
+            if (err) throw err;
+            console.log(user.password, isMatch); // Determine if true
         });
-    }));
-});
-    
+        
+        
+    });
+}
 
 
         //userLogin.comparePass(userLogin.password, function (isMatch) {
@@ -156,6 +151,8 @@ router.post('/signin', function (req, res) {
         //        });
         //    }
         //});
+    });
+})
 
 router.route('/movies')
     .put(authJwtController.isAuthenticated, function (req, res) {
