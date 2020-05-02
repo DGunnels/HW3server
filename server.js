@@ -4,8 +4,8 @@ var http = require('http');
 var bodyParser = require('body-parser');
 var passport = require('passport');
 var authJwtController = require('./auth_jwt');
-var User = require('./Users');
-var Movie = require('./Movies');
+var User = require('./Users.js');
+var Movie = require('./Movies.js');
 var jwt = require('jsonwebtoken');
 const cors = require('cors');
 /*
@@ -115,96 +115,101 @@ router.post('/signup', function (req, res) {
     }
 });
 
-        router.post('/signin', function (req, res) {
-            var userLogin = new User();
-            userLogin.username = req.body.username;
-            userLogin.password = req.body.password;
+router.post('/signin', function (req, res) {
+    var userLogin = new User();
+    userLogin.username = req.body.username;
+    userLogin.password = req.body.password;
 
-            User.findOne({ username: userLogin.username }).select('username password').exec(function (err, User) {
+    User.findOne({ username: userLogin.username }).select('username password').exec(function (err, User) {
+        if (err) res.send(err);
+
+        User.comparePass(userLogin.passport, function (isMatch) {
+            if (isMatch) {
+                var userToken = { id: user._id, username: userLogin.username };
+                var token = jwt.sign(userToken, process.env.SECRET_KEY);
+                res.json({
+                    success: true,
+                    token: 'JWT' + token
+                });
+            } else {
+                res.status(401).send({
+                    success: false,
+                    message: 'Authentication failed.'
+                });
+            }
+        });
+    });
+})
+
+router.route('/movies')
+    .put(authJwtController.isAuthenticated, function (req, res) {
+
+        Movie.findById(req.body.movie_id, function (err, movie) {
+
+            if (err) res.send(err);
+
+            //update the movie info only if it is new
+            if (req.body.movietitle) movie.Title = req.body.movietitle;
+            if (req.body.releaseyear) movie.ReleaseYear = req.body.releaseyear;
+            if (req.body.genre) movie.Genre = req.body.genre;
+            if (req.body.actornamea) movie.ActorNameA = req.body.actornamea;
+            if (req.body.actorchara) movie.ActorCharA = req.body.actorchara;
+            if (req.body.actornameb) movie.ActorNameB = req.body.actornameb;
+            if (req.body.actorcharb) movie.ActorCharB = req.body.actorcharb;
+            if (req.body.actornamec) movie.ActorNameC = req.body.actornamec;
+            if (req.body.actorcharc) movie.ActorCharC = req.body.actorcharc;
+
+            //save the movie
+            movie.save(function (err) {
                 if (err) res.send(err);
 
-                User.comparePass(userLogin.passport, function (isMatch) {
-                    if (isMatch) {
-                        var userToken = { id: user._id, username: userLogin.username };
-                        var token = jwt.sign(userToken, process.env.SECRET_KEY);
-                        res.json({ success: true, token: 'JWT' + token });
-                    }
-                    else {
-                        res.status(401).send({ success: false, message: 'Authentication failed.' });
-                    }
-                });
+                res.json({ message: 'Movie has been updated!' });
             });
+
+
+        });
+    })
+    .post(authJwtController.isAuthenticated, function (req, res) {
+        var queryToken;
+
+        //Create a Movie
+        var movie = new Movie();
+
+        movie.Title = req.body.movietitle;
+        movie.ReleaseYear = req.body.releaseyear;
+        movie.Genre = req.body.genre;
+        movie.ActorNameA = req.body.actornamea;
+        movie.ActorCharA = req.body.actorchara;
+        movie.ActorNameB = req.body.actornameb;
+        movie.ActorCharB = req.body.actorcharb;
+        movie.ActorNameC = req.body.actornamec;
+        movie.ActorCharC = req.body.actorcharc;
+
+        movie.save(function (err) {
+            if (err) {
+                //duplicate entry
+                if (err.code == 11000)
+                    return res.json({ sucess: false, message: 'This already exists!' });
+                else
+                    return res.send(err);
+            }
+            res.json({ message: 'Movie has been created!' });
         })
+    })
+    .delete(authJwtController.isAuthenticated, function (req, res) {
+        Movie.remove({
+            _id: req.body.movie_id
+        }, function (err, movies) {
+            if (err) return res.send(err);
 
-        router.route('/movies')
-            .put(authJwtController.isAuthenticated, function (req, res) {
-
-                Movie.findById(req.body.movie_id, function (err, movie) {
-
-                    if (err) res.send(err);
-
-                    //update the movie info only if it is new
-                    if (req.body.movietitle) movie.Title = req.body.movietitle;
-                    if (req.body.releaseyear) movie.ReleaseYear = req.body.releaseyear;
-                    if (req.body.genre) movie.Genre = req.body.genre;
-                    if (req.body.actornamea) movie.ActorNameA = req.body.actornamea;
-                    if (req.body.actorchara) movie.ActorCharA = req.body.actorchara;
-                    if (req.body.actornameb) movie.ActorNameB = req.body.actornameb;
-                    if (req.body.actorcharb) movie.ActorCharB = req.body.actorcharb;
-                    if (req.body.actornamec) movie.ActorNameC = req.body.actornamec;
-                    if (req.body.actorcharc) movie.ActorCharC = req.body.actorcharc;
-
-                    //save the movie
-                    movie.save(function (err) {
-                        if (err) res.send(err);
-
-                        res.json({ message: 'Movie has been updated!' });
-                    });
+            res.json({ message: "Sucessfully deleted the movie." });
+        });
+    })
+    .all(function (req, res) {
+        res.status(405);
+        res.send('Error: 405 \n Unsupported HTTP Method');
+    });
 
 
-                });
-            })
-            .post(authJwtController.isAuthenticated, function (req, res) {
-                var queryToken;
-
-                //Create a Movie
-                var movie = new Movie();
-
-                movie.Title = req.body.movietitle;
-                movie.ReleaseYear = req.body.releaseyear;
-                movie.Genre = req.body.genre;
-                movie.ActorNameA = req.body.actornamea;
-                movie.ActorCharA = req.body.actorchara;
-                movie.ActorNameB = req.body.actornameb;
-                movie.ActorCharB = req.body.actorcharb;
-                movie.ActorNameC = req.body.actornamec;
-                movie.ActorCharC = req.body.actorcharc;
-
-                movie.save(function (err) {
-                    if (err) {
-                        //duplicate entry
-                        if (err.code == 11000)
-                            return res.json({ sucess: false, message: 'This already exists!' });
-                        else
-                            return res.send(err);
-                    }
-                    res.json({ message: 'Movie has been created!' });
-                })
-            })
-            .delete(authJwtController.isAuthenticated, function (req, res) {
-                Movie.remove({
-                    _id: req.body.movie_id
-                }, function (err, movies) {
-                    if (err) return res.send(err);
-
-                    res.json({ message: "Sucessfully deleted the movie." });
-                });
-            })
-            .all(function (req, res) {
-                res.status(405);
-                res.send('Error: 405 \n Unsupported HTTP Method');
-            });
-
-
-        app.use('/', router);
-        app.listen(process.env.PORT || 8080);
+app.use('/', router);
+app.listen(process.env.PORT || 8080);
