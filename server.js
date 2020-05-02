@@ -149,6 +149,10 @@ router.post('/signin', function (req, res) {
 
 
 router.route('/movies')
+    .get(authJwtController.isAuthenticated, function (req, res) {
+        findMovie = req.body.findMovie;
+        Movie.find(findMovie);
+    })
     .put(authJwtController.isAuthenticated, function (req, res) {
 
         Movie.findById(req.body.movie_id, function (err, movie) {
