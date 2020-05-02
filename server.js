@@ -125,7 +125,7 @@ router.post('/signin', function (req, res) {
         if (err) throw err;
 
         user.comparePassword(userNew.password, function (isMatch) {
-            res.json(userNew.password + " & " + user.password);
+            res.json(userNew + " & " + user);
             
             if (isMatch) {
                 var userToken = { id: user._id, username: user.username };
