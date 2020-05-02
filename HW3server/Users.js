@@ -11,8 +11,12 @@ const connectOptions = {
     dbName: 'HW3'
 }
 
-
-mongoose.Promise = global.Promise;
+try {
+    mongoose.Promise = global.Promise;
+}
+catch (err) {
+    console.error(err);
+};
 
 mongoose.connect(process.env.DB, connectOptions, function (error) {
     if (error) return next(error);
@@ -21,9 +25,7 @@ mongoose.connect(process.env.DB, connectOptions, function (error) {
 // user schema
 var UserSchema = new Schema({
     username: { type: String, required: true, index: { unique: true } },
-    email: {
-        type: String, required: true, index: { unique: true }
-    },
+    email: { type: String, required: true, index: { unique: true } },
     password: { type: String, required: true, select: false }
 });
 
