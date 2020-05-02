@@ -120,19 +120,12 @@ router.post('/signin', function (req, res) {
     var userNew = new User();
     userNew.username = req.body.username;
     userNew.password = req.body.password;
+    var functionTester = process.env.TEST;
 
     User.findOne({ username: userNew.username }, function (err, user) {
         if (err) throw err;
 
-        res.send(Object.getOwnPropertyNames(User));
-
-        res.send('This is stupid \n');
-
-        res.send(Object.getOwnPropertyNames(user));
-
-        res.send('This is stupid 2 \n');
-
-        res.send(Object.getOwnPropertyNames(userNew));
+        res.send(Object.getOwnPropertyNames(functionTester));
 
         //user.comparePassword(userNew.password, function (err, isMatch) {
         //    if (err) throw err;
