@@ -137,22 +137,26 @@ router.post('/signin', function (req, res) {
     });
 });
 
-        //res.send(Object.getOwnPropertyNames(user.comparePassword));
-        //res.send(typeof (user.comparePassword));
-        //res.send(user.username);
-        //res.send(user.comparePassword(userNew.password));
-        //user.comparePassword(userNew.password, function (err, isMatch) {
-        //    if (err) throw err;
-        //    console.log(user.password, isMatch); // Determine if true
-        //});
+//res.send(Object.getOwnPropertyNames(user.comparePassword));
+//res.send(typeof (user.comparePassword));
+//res.send(user.username);
+//res.send(user.comparePassword(userNew.password));
+//user.comparePassword(userNew.password, function (err, isMatch) {
+//    if (err) throw err;
+//    console.log(user.password, isMatch); // Determine if true
+//});
 
 
 
 router.route('/movies')
     .get(authJwtController.isAuthenticated, function (req, res) {
         findMovie = req.body.findMovie;
-        Movie.find(findMovie);
+        Movie.find(function (err, movies) {
+            if (err) res.send(err);
+            res.json(movies);
+        })
     })
+
     .put(authJwtController.isAuthenticated, function (req, res) {
 
         Movie.findById(req.body.movie_id, function (err, movie) {
