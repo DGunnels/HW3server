@@ -120,19 +120,33 @@ router.post('/signin', function (req, res) {
     var userNew = new User();
     userNew.username = req.body.username;
     userNew.password = req.body.password;
-    
+
 
     User.findOne({ username: userNew.username }, function (err, user) {
         if (err) throw err;
 
+        user.comparePassword(userNew.password, function (isMatch) {
+            if (isMatch) {
+                var userToken = { id: user._id, username: user.username };
+                var token = jwt.sign(userToken, process.env.SECRET_KEY);
+                res.json({ success: true, token: 'JWT' + token });
+            } else {
+                res.status(401).send({ success: false, message: 'Authentication Failed.' });
+            }
+        });
+    });
+});
+
         //res.send(Object.getOwnPropertyNames(user.comparePassword));
-        res.send(typeof (user.comparePassword));
+        //res.send(typeof (user.comparePassword));
         //res.send(user.username);
         //res.send(user.comparePassword(userNew.password));
         //user.comparePassword(userNew.password, function (err, isMatch) {
         //    if (err) throw err;
         //    console.log(user.password, isMatch); // Determine if true
         //});
+
+
 
 
     });
