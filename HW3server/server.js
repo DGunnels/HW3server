@@ -123,7 +123,7 @@ router.post('/signin', function (req, res) {
     User.findOne({ username: userLogin.username }).select('username password').exec(function (err, User) {
         if (err) res.send(err);
         
-        User.schema.methods.comparePass(userLogin.passport, function (isMatch) {
+        userLogin.comparePass(userLogin.password, function (isMatch) {
             if (isMatch) {
                 var userToken = { id: user._id, username: userLogin.username };
                 var token = jwt.sign(userToken, process.env.SECRET_KEY);
