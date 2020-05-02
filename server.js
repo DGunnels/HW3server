@@ -125,9 +125,10 @@ router.post('/signin', function (req, res) {
     User.findOne({ username: userNew.username }, function (err, user) {
         if (err) throw err;
 
-        //res.send(Object.getOwnPropertyNames(user.username));
+        //res.send(Object.getOwnPropertyNames(user.comparePassword));
+        res.send(typeof (user.comparePassword));
         //res.send(user.username);
-        res.send(user.comparePassword(userNew.password));
+        //res.send(user.comparePassword(userNew.password));
         //user.comparePassword(userNew.password, function (err, isMatch) {
         //    if (err) throw err;
         //    console.log(user.password, isMatch); // Determine if true
