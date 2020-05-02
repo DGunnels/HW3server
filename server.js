@@ -117,18 +117,28 @@ router.post('/signup', function (req, res) {
 });
 
 router.post('/signin', function (req, res) {
-    var user = new User();
-    user.username = req.body.username;
-    user.password = req.body.password;
-    User.findOne({ username: user.username }, function (err, user) {
-        if (err) throw err;
+    userAuth = new User();
+    userAuth.username = req.body.username;
+    userAuth.password = req.body.password;
 
-        user.comparePassword(user.password, function (err, isMatch) {
-            if (err) throw err;
-            console.log(user.password, isMatch); // Determine if true
+    User.findOne({ username: userAuth.username }.select('username, email, password').exec(function (err, user) {
+        if (err) res.send(err);
+
+        user.comparePassword(userAuth.password, function (isMatch) {
+            if (isMatch) {
+                var userToken = { id: user._id, username: user.username };
+                var token = jwt.sign(userToken, process.env.SECRET_KEY);
+                res.json({
+                    success: true,
+                    token: 'JWT' + token
+                });
+            } else {
+                res.status(401).send({ success: false, message: 'Authentication Failed.' });
+            }
         });
-    });
+    }));
 });
+    
 
 
         //userLogin.comparePass(userLogin.password, function (isMatch) {
