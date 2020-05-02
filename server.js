@@ -120,12 +120,12 @@ router.post('/signup', function (req, res) {
             userLogin.username = req.body.username;
             userLogin.password = req.body.password;
 
-            User.findOne({ username: userLogin.username }).select('username password').exec(function (err, user) {
+            User.findOne({ username: userLogin.username }).select('username password').exec(function (err, User) {
                 if (err) res.send(err);
 
-                user.comparePass(userLogin.passport, function (isMatch) {
+                User.comparePass(userLogin.passport, function (isMatch) {
                     if (isMatch) {
-                        var userToken = { id: user._id, username: user.username };
+                        var userToken = { id: user._id, username: userLogin.username };
                         var token = jwt.sign(userToken, process.env.SECRET_KEY);
                         res.json({ success: true, token: 'JWT' + token });
                     }
