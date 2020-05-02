@@ -29,7 +29,7 @@ mongoose.connect(process.env.DB, connectOptions, function (error) {
 
 var MovieSchema = new Schema({
     "Title": { type: String, required: true },
-    "Year Released": { type: Number, required: true },
+    "ReleaseYear": { type: Number, required: true },
     "Genre": { type: String, required: true },
     "ActorNameA": { type: String, required: true },
     "ActorCharA": { type: String, required: true },
