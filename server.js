@@ -157,8 +157,9 @@ router.route('/moviescatalog')
         var id = req.headers.id;
         Movie.findOne({ _id: id },
             function (err, movie) {
-            if (err) res.send(err);
-            if (movie == null) res.send("wat");
+                if (movie == null) res.send("wat");
+                if (err) res.send(err);
+            
 
             movie.Title = req.body.Title;
             movie.Year = req.body.Year;
