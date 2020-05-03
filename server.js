@@ -118,10 +118,6 @@ router.post('/signin', function(req, res) {
     });
 });
 
-
-
-
-
 router.route('/moviescatalog')
     .post( authJwtController.isAuthenticated, function (req, res) {
         if (!req.body.Title || !req.body.Genre || !req.body.Year || !req.body.Actors && req.body.Actors.length) {
