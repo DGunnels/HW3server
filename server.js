@@ -192,6 +192,7 @@ router.route('/moviescatalog')
             _id: id
         }, function (err, movies) {
             if (err) return res.send(err);
+            if (movies == null) return res.send("Movie does not exist.");
 
             res.json({ message: "Sucessfully deleted the movie." });
         });
