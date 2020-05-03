@@ -1,22 +1,19 @@
 
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var MongoClient=require('mongodb').MongoClient;
-var url="mongodb://localhost/webapi";
 var bcrypt = require('bcrypt-nodejs');
 
-mongoose.Promise = global.Promise;
-/*MongoClient.connect(url,function(err,db){
-    if (err)throw err;
-    var dbo=db.db("mydb");
-    dbo.createCollection("movies",function(err,res){
-        if(err)throw err;
-        console.log("Collection created!");
-        db.close();
-    });
-});*/
+const connectOptions = {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    user: process.env.DBuser,
+    pass: process.env.DBpass,
+    dbName: 'HW3'
+}
 
-mongoose.connect(process.env.DB, { useNewUrlParser: true } );
+mongoose.Promise = global.Promise;
+
+mongoose.connect(process.env.DB, connectOptions);
 mongoose.set('useCreateIndex', true);
 
 // Movie schema

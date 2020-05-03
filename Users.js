@@ -2,9 +2,17 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var bcrypt = require('bcrypt-nodejs');
 
+const connectOptions = {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    user: process.env.DBuser,
+    pass: process.env.DBpass,
+    dbName: 'HW3'
+}
+
 mongoose.Promise = global.Promise;
 
-mongoose.connect(process.env.DB, { useNewUrlParser: true } );
+mongoose.connect(process.env.DB, connectOptions);
 mongoose.set('useCreateIndex', true);
 
 // user schema
