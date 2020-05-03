@@ -155,7 +155,8 @@ router.route('/moviescatalog')
 
     .put(authJwtController.isAuthenticated, function (req, res) {
         var id = req.headers.id;
-        Movie.findOne({ _id: id }).exec(function (err, movie) {
+        Movie.findOne({ _id: id },
+            function (err, movie) {
             if (err) res.send(err);
 
             movie.Title = req.body.Title;
@@ -166,13 +167,13 @@ router.route('/moviescatalog')
             movie.save(function (err) {
                 if (err) {
                     if (err.code == 11000)
-                        //checks for duplicate title
-                        return res.json({ success: false, message: 'A Movie with that Title already exists!' });
+                        //checks for duplicate title if this wasn't a put
+                        return res.json({ success: false, message: 'That movie already exists.' });
                     else
                         return res.send(err);
                 }
 
-                res.json({ message: 'Movie Successfully updated!' });
+                res.json({ message: 'The movie was updated.' });
             });
         });
     })
