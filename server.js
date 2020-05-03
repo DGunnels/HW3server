@@ -79,6 +79,7 @@ router.post('/signup', function(req, res) {
         user.username = req.body.username;
         user.password = req.body.password;
 
+        User.find();
         // save the user
         user.save(function(err) {
             if (err) {
