@@ -4,6 +4,7 @@ var passport = require('passport');
 var authJwtController = require('./auth_jwt');
 var User = require('./Users');
 var Movie = require('./movies');
+var Review = require('./Reviews');
 var jwt = require('jsonwebtoken');
 var cors = require('cors');
 var app = express();
@@ -11,8 +12,6 @@ var app = express();
 module.exports = app; // for testing
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-
-
 app.use(passport.initialize());
 app.use(cors());
 var router = express.Router();
@@ -40,7 +39,7 @@ router.route('/users/:userId')
             res.json(user);
         });
     });
-router.route('/movies/:movieId')
+router.route('/movie/:movieId')
     .get(authJwtController.isAuthenticated, function (req, res) {
         var id = req.params.movieId;
         Movie.findById(id, function (err, movie) {
@@ -60,22 +59,16 @@ router.route('/users')
             res.json(users);
         });
     });
-router.route('/movies')
+router.route('/movie')
     .get(authJwtController.isAuthenticated, function (req, res) {
         Movie.find(function (err, movies) {
             if (err) res.send(err);
-            // return the users
+            // return the movies
             res.json(movies);
         });
     });
 
 router.post('/signup', function (req, res) {
-    //User.find(function (err, users) {
-    //    if (err) res.send(err);
-    //    // return the users
-    //    res.json(users);
-    //});
-
     if (!req.body.username || !req.body.password) {
         res.json({ success: false, message: 'Please pass username and password.' });
     }
@@ -123,14 +116,14 @@ router.post('/signin', function (req, res) {
     });
 });
 
-router.route('/moviescatalog')
+router.route('/movie')
     .post(authJwtController.isAuthenticated, function (req, res) {
         if (!req.body.Title || !req.body.Genre || !req.body.Year || !req.body.Actors && req.body.Actors.length) {
-            res.json({ success: false, msg: 'Please pass Movie Title, Year released, Genre, and Actors(Character Name and Actor Name)' });
+            res.json({ success: false, msg: 'Please include the movie Title, Year, Genre, and an array of at least three Actors or Actresses with Name and Character for each.' });
         }
         else {
             if (req.body.Actors.length < 3) {
-                res.json({ success: false, message: 'Please include at least Three Actors!' });
+                res.json({ success: false, message: 'Please include at least Three Actors/Actresses.' });
             }
             else {
                 var movie = new Movie(req, res);
@@ -142,12 +135,13 @@ router.route('/moviescatalog')
                 movie.save(function (err) {
                     if (err) {
                         if (err.code == 11000)
+                            // Not actually checked, duplicates are fine. Movies have similar/identical titles.
                             return res.json({ success: false, message: 'A Movie with that Title already exists!' });
                         else
                             return res.send(err);
                     }
 
-                    res.json({ message: 'Movie Successfully created!' });
+                    res.json({ message: 'Movie Successfully created.' });
                 });
             }
         }
@@ -158,25 +152,25 @@ router.route('/moviescatalog')
         Movie.findOne({ _id: id },
             function (err, movie) {
                 if (err) res.send(err);
-                if (movie == null) return res.send("wat");
+                if (movie == null) return res.send("NaN NaN NaN NaN NaN watman. Movie is nonexistent.");
 
-            movie.Title = req.body.Title;
-            movie.Year = req.body.Year;
-            movie.Genre = req.body.Genre;
-            movie.Actors = req.body.Actors;
+                movie.Title = req.body.Title;
+                movie.Year = req.body.Year;
+                movie.Genre = req.body.Genre;
+                movie.Actors = req.body.Actors;
 
-            movie.save(function (err) {
-                if (err) {
-                    if (err.code == 11000)
-                        //checks for duplicate title if this wasn't a put
-                        return res.json({ success: false, message: 'That movie already exists.' });
-                    else
-                        return res.send(err);
-                }
+                movie.save(function (err) {
+                    if (err) {
+                        if (err.code == 11000)
+                            //checks for duplicate title if this wasn't a put
+                            return res.json({ success: false, message: 'That movie already exists.' });
+                        else
+                            return res.send(err);
+                    }
 
-                res.json({ message: 'The movie was updated.' });
+                    res.json({ message: 'The movie was updated.' });
+                });
             });
-        });
     })
 
     .get(authJwtController.isAuthenticated, function (req, res) {
@@ -203,6 +197,90 @@ router.route('/moviescatalog')
         res.status(405);
         res.send('Error: 405 \n Unsupported HTTP Method');
     });
+
+router.rout('/reviews/:title')
+    .get(authJwtController.isAuthenticated, function (req, res) {
+        if (req.query.reviews === 'true') {
+            var title = req.params.title;
+            Movie.aggregate([
+                {
+                    $match: {
+                        Title: title
+                    }
+                }, {
+                    $lookup: {
+                        from: 'reviews',
+                        localField: 'Title',
+                        foreignField: 'MovieTitle',
+                        as: 'Reviews'
+                    }
+                }
+            ]).exec((err, movie) => {
+                if (err) res.json({ message: 'Failed to get the review' });
+                res.json(movie);
+
+            });
+        }
+        else {
+            res.json({ message: 'Sorry, that has invalid query parameters.' });
+        }
+
+        Movie.findOne({ Title: req.params.title }), function (err, movieA) {
+            if (err) res.send(err);
+            if (movieA !== null) {
+                res.json(movieA);
+            }
+            else {
+                res.json({ message: "Movie was not found." });
+            }
+        };
+    });
+
+
+router.route('/reviews')
+    .post(authJwtController.isAuthenticated, function (req, res) {
+        if (err) res.send(err);
+        if (movie !== null) {
+            var newReview = new Review();
+            newReview.MovieTitle = req.body.MovieTitle;
+            newReview.username = req.body.username;
+            newReview.smallQuote = req.body.smallQuote;
+            newReview.rating = req.body.rating;
+            newReview.save(function (err) {
+                if (err) {
+                    return res.send({ success: false, message: "Review not created." });
+                }
+                res.json({ message: "Review has been created." });
+            });
+        } else {
+            res.json({ message: "Movie not found." });
+        }
+    })
+    .get(authJwtController.isAuthenticated, function (req, res) {
+        if (req.query.reviews === 'true') {
+            Movie.aggregate([
+                {
+                    $match: {
+                        Title: title
+                    }
+                }, {
+                    $lookup: {
+                        from: 'reviews',
+                        localField: 'Title',
+                        foreignField: 'MovieTitle',
+                        as: 'Reviews'
+                    }
+                }
+            ]).exec((err, movie) => {
+                if (err) res.json({ message: 'Failed to get the reviews' });
+                res.json(movie);
+
+            });
+        } else {
+            res.json({ message: 'Sorry, that has invalid query parameters.' });
+        }
+    })
+
 
 
 app.use('/', router);

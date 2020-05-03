@@ -1,5 +1,4 @@
 var mongoose = require('mongoose');
-
 var Schema = mongoose.Schema;
 var bcrypt = require('bcrypt-nodejs');
 
@@ -25,16 +24,16 @@ mongoose.connect(process.env.DB, connectOptions, function (error) {
 mongoose.set('useCreateIndex', true);
 
 var reviewerSchema = Schema({
-    MovieTitle:{type: String, required: true},
-    ReviewerName: {type:String,required: true},
-    smallQuote: {type: String, required: true},
-    rating:{type:Number, max:5, min:1, required: true}
+    MovieTitle: { type: String, required: true },
+    ReviewerName: { type: String, required: true },
+    smallQuote: { type: String, required: true },
+    rating: { type: Number, max: 5, min: 1, required: true }
 });
 
 
-reviewerSchema.pre('save',function (next) {
-    if(this.length == 0){
-        return next(new Error('Only one Reviewer allowed'));
+reviewerSchema.pre('save', function (next) {
+    if (this.length == 0) {
+        return next(new Error('Sorry, this review already exists.'));
     }
     next()
 });
