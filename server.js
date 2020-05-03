@@ -187,22 +187,18 @@ router.route('/moviescatalog')
     })
 
 .delete(authJwtController.isAuthenticated, function (req, res) {
-    if (!req.body.Title)
-    {
-        res.json({success: false, msg: 'Please pass movie title.'});
-    }
-    else
-    {
-        Movie.findOne({Title: req.body.Title}).exec(function(err, result){ //Make sure movie exists before deleting
-            if (result !== null) {
-                Movie.remove({Title: req.body.Title}).exec(function (err) {
-                    if (err)  res.json({ success: false, message: "Could not find Movie  '" + req.body.Title + "'"});
-                    else res.json({ success: true, message: "Movie deleted."});
-                })
-            }
-        });
-    }
-});
+    Movie.remove({
+        _id: req.header.id
+    }, function (err, movies) {
+        if (err) return res.send(err);
+
+        res.json({ message: "Sucessfully deleted the movie." });
+    });
+})
+    .all(function (req, res) {
+        res.status(405);
+        res.send('Error: 405 \n Unsupported HTTP Method');
+    });
 
 
 app.use('/', router);
