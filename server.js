@@ -105,7 +105,7 @@ router.post('/signin', function (req, res) {
             if (isMatch) {
                 var userToken = { id: user._id, username: user.username };
                 var token = jwt.sign(userToken, process.env.SECRET_KEY);
-                res.json({ success: true, token: 'JWT ' + token });
+                res.json({ success: true, token: 'JWT ' + token , usernameToken: userToken.username });
             }
             else {
                 res.status(401).send({ success: false, message: 'Authentication failed.' });
@@ -246,9 +246,10 @@ router.route('/reviews')
             if (movie !== null) {
                 var newReview = new Review();
                 newReview.MovieTitle = req.body.MovieTitle;
-                newReview.ReviewerName = req.body.ReviewerName;
+                newReview.ReviewerName = req.body.usernameToken;
                 newReview.smallQuote = req.body.smallQuote;
                 newReview.rating = req.body.rating;
+                
                 newReview.save(function (err) {
                     if (err) {
                         return res.send({ success: false, message: "Review was not posted." });
