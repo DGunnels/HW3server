@@ -121,6 +121,7 @@ router.post('/signin', function (req, res) {
     userNew.username = req.body.username;
     userNew.password = req.body.password;
 
+
     User.findOne({ username: userNew.username }, function (err, user) {
         if (err) throw err;
 
@@ -128,7 +129,7 @@ router.post('/signin', function (req, res) {
             if (isMatch) {
                 var userToken = { id: user._id, username: user.username };
                 var token = jwt.sign(userToken, process.env.SECRET_KEY);
-                res.json({ success: true, token: 'JWT ' + token });
+                res.json({ success: true, token: 'JWT' + token });
             } else {
                 res.status(401).send({ success: false, message: 'Authentication Failed.' });
             }
@@ -149,6 +150,7 @@ router.post('/signin', function (req, res) {
 
 router.route('/movies')
     .get(authJwtController.isAuthenticated, function (req, res) {
+        findMovie = req.body.findMovie;
         Movie.find(function (err, movies) {
             if (err) res.send(err);
             res.json(movies);
