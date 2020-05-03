@@ -70,11 +70,11 @@ router.route('/movies')
     });
 
 router.post('/signup', function (req, res) {
-    User.find(function (err, users) {
-        if (err) res.send(err);
-        // return the users
-        res.json(users);
-    });
+    //User.find(function (err, users) {
+    //    if (err) res.send(err);
+    //    // return the users
+    //    res.json(users);
+    //});
 
     if (!req.body.username || !req.body.password) {
         res.json({success: false, message: 'Please pass username and password.'});
