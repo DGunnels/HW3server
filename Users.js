@@ -10,9 +10,19 @@ const connectOptions = {
     dbName: 'HW3'
 }
 
-mongoose.Promise = global.Promise;
+try {
+    mongoose.Promise = global.Promise;
+}
+catch (err) {
+    console.error(err);
+};
 
-mongoose.connect(process.env.DB, connectOptions);
+
+
+mongoose.connect(process.env.DB, connectOptions, function (error) {
+    if (error) return next(error);
+});
+
 mongoose.set('useCreateIndex', true);
 
 // user schema

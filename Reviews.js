@@ -10,10 +10,18 @@ const connectOptions = {
     pass: process.env.DBpass,
     dbName: 'HW3'
 }
+try {
+    mongoose.Promise = global.Promise;
+}
+catch (err) {
+    console.error(err);
+};
 
-mongoose.Promise = global.Promise;
 
-mongoose.connect(process.env.DB, connectOptions);
+
+mongoose.connect(process.env.DB, connectOptions, function (error) {
+    if (error) return next(error);
+});
 mongoose.set('useCreateIndex', true);
 
 var reviewerSchema = Schema({
