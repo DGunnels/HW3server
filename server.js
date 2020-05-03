@@ -14,7 +14,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 
 app.use(passport.initialize());
-
+app.use(cors());
 var router = express.Router();
 
 router.route('/postjwt')
