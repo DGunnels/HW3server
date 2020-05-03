@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var bcrypt = require('bcrypt-nodejs');
+const saltRound = 10;
 
 const connectOptions = {
     useNewUrlParser: true,
@@ -33,20 +34,24 @@ var UserSchema = new Schema({
 });
 
 // hash the password before the user is saved
-UserSchema.pre('save', function(next) {
+UserSchema.pre('save', function (next) {
     var user = this;
-    console.log(user.username);
-    console.log(user.password);
+
     // hash the password only if the password has been changed or user is new
     if (!user.isModified('password')) return next();
 
-    // generate the hash
-    bcrypt.hash(user.password, null, null, function(err, hash) {
+    // say hi to the salt
+    bcrypt.genSalt(saltRound, function (err, salt) {
         if (err) return next(err);
 
-        // change the password to the hashed version
-        user.password = hash;
-        next();
+        // hashtime with salt
+        bcrypt.hash(user.password, salt, function (err, hash) {
+            if (err) return next(err);
+
+            //override clear text with hash
+            user.password = hash;
+            next();
+        });
     });
 });
 
