@@ -103,6 +103,7 @@ router.post('/signin', function(req, res) {
         if (err) res.send(err);
         // return the users
         res.json(users);
+    }
     User.findOne({ username: userNew.username }).select('name username password').exec(function(err, user) {
         if (err) res.send(err);
 
