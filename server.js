@@ -79,7 +79,7 @@ router.post('/signup', function (req, res) {
         user.name = req.body.name;
         user.username = req.body.username;
         user.password = req.body.password;
-        res.send(User.find().exec());
+        res.send(await User.find().exec());
         // save the user
         user.save(function(err) {
             if (err) {
