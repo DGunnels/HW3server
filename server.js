@@ -188,7 +188,9 @@ router.route('/moviescatalog')
 
     .delete(authJwtController.isAuthenticated, function (req, res) {
         var id = req.headers.id;
-        Movie.remove({ _id: id }).exec(function (err, movie) {
+        Movie.remove({
+            _id: id
+        }, function (err, movies) {
             if (err) return res.send(err);
 
             res.json({ message: "Sucessfully deleted the movie." });
