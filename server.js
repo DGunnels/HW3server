@@ -246,7 +246,7 @@ router.route('/reviews')
             if (movie !== null) {
                 var newReview = new Review();
                 newReview.MovieTitle = req.body.MovieTitle;
-                newReview.ReviewerName = req.body.usernameToken;
+                newReview.ReviewerName = req.body.ReviewerName;
                 newReview.smallQuote = req.body.smallQuote;
                 newReview.rating = req.body.rating;
                 
