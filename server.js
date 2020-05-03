@@ -207,8 +207,10 @@ router.route('/reviews/:title')
                     $match: {
                         Title: title
                     }
-                }, {
-                    $lookup: {
+                },
+                {
+                    $lookup:
+                    {
                         from: 'reviews',
                         localField: 'Title',
                         foreignField: 'MovieTitle',
@@ -216,55 +218,55 @@ router.route('/reviews/:title')
                     }
                 }
             ]).exec((err, movie) => {
-                if (err) res.json({ message: 'Failed to get the review' });
+                if (err) res.json({ message: 'Failed to get the review.' });
                 res.json(movie);
-
             });
         }
         else {
-            res.json({ message: 'Sorry, that has invalid query parameters.' });
+            res.json({ message: 'Please ensure your reviews parameter is true.' });
         }
 
-        Movie.findOne({ Title: req.params.title }), function (err, movieA) {
+        Movie.findOne({ Title: req.params.title }).exec(function (err, movieA) {
             if (err) res.send(err);
             if (movieA !== null) {
                 res.json(movieA);
             }
             else {
-                res.json({ message: "Movie was not found." });
+                res.json({ message: 'The movie could not be found.' });
             }
-        };
+        });
     });
 
 
 router.route('/reviews')
     .post(authJwtController.isAuthenticated, function (req, res) {
-        if (err) res.send(err);
-        if (movie !== null) {
-            var newReview = new Review();
-            newReview.MovieTitle = req.body.MovieTitle;
-            newReview.username = req.body.username;
-            newReview.smallQuote = req.body.smallQuote;
-            newReview.rating = req.body.rating;
-            newReview.save(function (err) {
-                if (err) {
-                    return res.send({ success: false, message: "Review not created." });
-                }
-                res.json({ message: "Review has been created." });
-            });
-        } else {
-            res.json({ message: "Movie not found." });
-        }
+        Movie.findOne({ Title: req.body.MovieTitle }).exec(function (err, movie) {
+            if (err) res.send(err);
+            //If the movie exists, add new reviews
+            if (movie !== null) {
+                var newReview = new Review();
+                newReview.MovieTitle = req.body.MovieTitle;
+                newReview.ReviewerName = req.body.ReviewerName;
+                newReview.smallQuote = req.body.smallQuote;
+                newReview.rating = req.body.rating;
+                newReview.save(function (err) {
+                    if (err) {
+                        return res.send({ success: false, message: "Review was not posted." });
+                    }
+                    res.json({ message: 'Review posted.' });
+                });
+            }
+            else {
+                res.json({ message: 'Movie does not exist in the database.' });
+            }
+        });
     })
     .get(authJwtController.isAuthenticated, function (req, res) {
         if (req.query.reviews === 'true') {
             Movie.aggregate([
                 {
-                    $match: {
-                        Title: title
-                    }
-                }, {
-                    $lookup: {
+                    $lookup:
+                    {
                         from: 'reviews',
                         localField: 'Title',
                         foreignField: 'MovieTitle',
@@ -272,14 +274,17 @@ router.route('/reviews')
                     }
                 }
             ]).exec((err, movie) => {
-                if (err) res.json({ message: 'Failed to get the reviews' });
+                if (err) res.json({
+                    message: 'Failed to get the review.'
+                });
                 res.json(movie);
-
             });
-        } else {
-            res.json({ message: 'Sorry, that has invalid query parameters.' });
+
         }
-    })
+        else {
+            res.json({ message: 'Please ensure your reviews parameter is true.' });
+        }
+    });
 
 
 
