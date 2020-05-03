@@ -29,14 +29,12 @@ mongoose.set('useCreateIndex', true);
 var UserSchema = new Schema({
     name: String,
     username: { type: String, required: true, index: { unique: true }},
-    password: { type: String, required: true, select: false }
+    password: { type: String, required: true, select: true }
 });
 
 // hash the password before the user is saved
 UserSchema.pre('save', function(next) {
     var user = this;
-    console.log(user.username);
-    console.log(user.password);
     // hash the password only if the password has been changed or user is new
     if (!user.isModified('password')) return next();
 
