@@ -5,7 +5,7 @@ var authJwtController = require('./auth_jwt');
 var User = require('./Users');
 var Movie = require('./movies');
 var jwt = require('jsonwebtoken');
-var cors= require('cors');
+var cors = require('cors');
 var app = express();
 
 module.exports = app; // for testing
@@ -19,20 +19,20 @@ var router = express.Router();
 
 router.route('/postjwt')
     .post(authJwtController.isAuthenticated, function (req, res) {
-            console.log(req.body);
-            res = res.status(200);
-            if (req.get('Content-Type')) {
-                console.log("Content-Type: " + req.get('Content-Type'));
-                res = res.type(req.get('Content-Type'));
-            }
-            res.send(req.body);
+        console.log(req.body);
+        res = res.status(200);
+        if (req.get('Content-Type')) {
+            console.log("Content-Type: " + req.get('Content-Type'));
+            res = res.type(req.get('Content-Type'));
         }
+        res.send(req.body);
+    }
     );
 
 router.route('/users/:userId')
     .get(authJwtController.isAuthenticated, function (req, res) {
         var id = req.params.userId;
-        User.findById(id, function(err, user) {
+        User.findById(id, function (err, user) {
             if (err) res.send(err);
 
             var userJson = JSON.stringify(user);
@@ -43,7 +43,7 @@ router.route('/users/:userId')
 router.route('/movies/:movieId')
     .get(authJwtController.isAuthenticated, function (req, res) {
         var id = req.params.movieId;
-        Movie.findById(id, function(err, movie) {
+        Movie.findById(id, function (err, movie) {
             if (err) res.send(err);
 
             var movieJson = JSON.stringify(movie);
@@ -77,7 +77,7 @@ router.post('/signup', function (req, res) {
     //});
 
     if (!req.body.username || !req.body.password) {
-        res.json({success: false, message: 'Please pass username and password.'});
+        res.json({ success: false, message: 'Please pass username and password.' });
     }
     else {
         var user = new User();
@@ -85,11 +85,11 @@ router.post('/signup', function (req, res) {
         user.username = req.body.username;
         user.password = req.body.password;
         // save the user
-        user.save(function(err) {
+        user.save(function (err) {
             if (err) {
                 // duplicate entry
                 if (err.code == 11000)
-                    return res.json({ success: false, message: 'A user with that username already exists. '});
+                    return res.json({ success: false, message: 'A user with that username already exists. ' });
                 else
                     return res.send(err);
             }
@@ -99,23 +99,23 @@ router.post('/signup', function (req, res) {
     }
 });
 
-router.post('/signin', function(req, res) {
+router.post('/signin', function (req, res) {
     var userNew = new User();
     userNew.name = req.body.name;
     userNew.username = req.body.username;
     userNew.password = req.body.password;
-    
-    User.findOne({ username: userNew.username }).select('name username password').exec(function(err, user) {
+
+    User.findOne({ username: userNew.username }).select('name username password').exec(function (err, user) {
         if (err) res.send(err);
 
-        user.comparePassword(userNew.password, function(isMatch){
+        user.comparePassword(userNew.password, function (isMatch) {
             if (isMatch) {
-                var userToken = {id: user._id, username: user.username};
+                var userToken = { id: user._id, username: user.username };
                 var token = jwt.sign(userToken, process.env.SECRET_KEY);
-                res.json({success: true, token: 'JWT ' + token});
+                res.json({ success: true, token: 'JWT ' + token });
             }
             else {
-                res.status(401).send({success: false, message: 'Authentication failed.'});
+                res.status(401).send({ success: false, message: 'Authentication failed.' });
             }
         });
 
@@ -124,25 +124,25 @@ router.post('/signin', function(req, res) {
 });
 
 router.route('/moviescatalog')
-    .post( authJwtController.isAuthenticated, function (req, res) {
+    .post(authJwtController.isAuthenticated, function (req, res) {
         if (!req.body.Title || !req.body.Genre || !req.body.Year || !req.body.Actors && req.body.Actors.length) {
-            res.json({success: false, msg: 'Please pass Movie Title, Year released, Genre, and Actors(Character Name and Actor Name)'});
+            res.json({ success: false, msg: 'Please pass Movie Title, Year released, Genre, and Actors(Character Name and Actor Name)' });
         }
         else {
-            if(req.body.Actors.length < 3) {
-                res.json({ success: false, message: 'Please include at least Three Actors!'});
+            if (req.body.Actors.length < 3) {
+                res.json({ success: false, message: 'Please include at least Three Actors!' });
             }
             else {
                 var movie = new Movie(req, res);
                 movie.Title = req.body.Title;
                 movie.Year = req.body.Year;
                 movie.Genre = req.body.Genre;
-                movie.Actors= req.body.Actors;
+                movie.Actors = req.body.Actors;
 
-                movie.save(function(err) {
+                movie.save(function (err) {
                     if (err) {
                         if (err.code == 11000)
-                            return res.json({ success: false, message: 'A Movie with that Title already exists!'});
+                            return res.json({ success: false, message: 'A Movie with that Title already exists!' });
                         else
                             return res.send(err);
                     }
@@ -153,9 +153,9 @@ router.route('/moviescatalog')
         }
     })
 
-    .put( authJwtController.isAuthenticated, function (req, res) {
+    .put(authJwtController.isAuthenticated, function (req, res) {
         var id = req.headers.id;
-        Movie.findOne({ _id: id}).exec(function(err, movie) {
+        Movie.findOne({ _id: id }).exec(function (err, movie) {
             if (err) res.send(err);
 
             movie.Title = req.body.Title;
@@ -163,11 +163,11 @@ router.route('/moviescatalog')
             movie.Genre = req.body.Genre;
             movie.Actors = req.body.Actors;
 
-            movie.save(function(err) {
+            movie.save(function (err) {
                 if (err) {
                     if (err.code == 11000)
                         //checks for duplicate title
-                        return res.json({ success: false, message: 'A Movie with that Title already exists!'});
+                        return res.json({ success: false, message: 'A Movie with that Title already exists!' });
                     else
                         return res.send(err);
                 }
@@ -180,21 +180,20 @@ router.route('/moviescatalog')
     .get(authJwtController.isAuthenticated, function (req, res) {
         if (true) {
             Movie.find({}, function (err, movies) {
-                if(err) {res.send(err);}
-                res.json({Movie: movies});
+                if (err) { res.send(err); }
+                res.json({ Movie: movies });
             })
         }
     })
 
-.delete(authJwtController.isAuthenticated, function (req, res) {
-    Movie.remove({
-        _id: req.header.id
-    }, function (err, movies) {
-        if (err) return res.send(err);
+    .delete(authJwtController.isAuthenticated, function (req, res) {
+        var id = req.headers.id;
+        Movie.remove({ _id: id }).exec(function (err, movie) {
+            if (err) return res.send(err);
 
-        res.json({ message: "Sucessfully deleted the movie." });
-    });
-})
+            res.json({ message: "Sucessfully deleted the movie." });
+        });
+    })
     .all(function (req, res) {
         res.status(405);
         res.send('Error: 405 \n Unsupported HTTP Method');
