@@ -198,7 +198,7 @@ router.route('/movie')
         res.send('Error: 405 \n Unsupported HTTP Method');
     });
 
-router.rout('/reviews/:title')
+router.route('/reviews/:title')
     .get(authJwtController.isAuthenticated, function (req, res) {
         if (req.query.reviews === 'true') {
             var title = req.params.title;
