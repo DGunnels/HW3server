@@ -70,7 +70,12 @@ router.route('/movies')
     });
 
 router.post('/signup', function (req, res) {
-    
+    User.find(function (err, users) {
+        if (err) res.send(err);
+        // return the users
+        res.json(users);
+    });
+
     if (!req.body.username || !req.body.password) {
         res.json({success: false, message: 'Please pass username and password.'});
     }
@@ -99,7 +104,7 @@ router.post('/signin', function(req, res) {
     userNew.name = req.body.name;
     userNew.username = req.body.username;
     userNew.password = req.body.password;
-    res.send('Hello World! This better be running!');
+    
     User.findOne({ username: userNew.username }).select('name username password').exec(function(err, user) {
         if (err) res.send(err);
 
