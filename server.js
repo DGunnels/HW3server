@@ -250,7 +250,7 @@ router.route('/reviews')
             //If the movie exists, add new reviews
             if (movie !== null) {
                 var newReview = new Review();
-                newReview.MovieTitle = req.body.MovieTitle;
+                newReview._id = req.body.id;
 
 
                 const usertoken = req.headers.authorization;
