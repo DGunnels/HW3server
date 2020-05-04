@@ -236,8 +236,8 @@ router.route('/reviews/:title')
             }
             else {
 
-                res.json({ message: 'The movie could not be found.' });
-                return;
+                return res.json({ message: 'The movie could not be found.' });
+                
             }
         });
     });
