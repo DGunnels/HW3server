@@ -198,22 +198,22 @@ router.route('/movie')
         res.send('Error: 405 \n Unsupported HTTP Method');
     });
 
-router.route('/reviews/:title')
+router.route('/reviews/:id')
     .get(authJwtController.isAuthenticated, function (req, res) {
         if (req.query.reviews === 'true') {
-            var title = req.params.title;
+            var id = req.params.id;
             Movie.aggregate([
                 {
                     $match: {
-                        Title: title
+                        _id: id
                     }
                 },
                 {
                     $lookup:
                     {
                         from: 'reviews',
-                        localField: 'Title',
-                        foreignField: 'MovieTitle',
+                        localField: 'id',
+                        foreignField: '_id',
                         as: 'Reviews'
                     }
                 }
