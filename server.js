@@ -105,7 +105,7 @@ router.post('/signin', function (req, res) {
             if (isMatch) {
                 var userToken = { id: user._id, username: user.username };
                 var token = jwt.sign(userToken, process.env.SECRET_KEY);
-                res.json({ success: true, token: 'JWT ' + token , usernameToken: userToken.username });
+                res.json({ success: true, token: 'JWT ' + token, usernameToken: userToken.username });
             }
             else {
                 res.status(401).send({ success: false, message: 'Authentication failed.' });
@@ -227,16 +227,18 @@ router.route('/reviews/:title')
         }
 
         Movie.findOne({ Title: req.params.title }).exec(function (err, movieA) {
-            console.trace(err.stack);
-            if (err) return res.send(err);
+            if (err) {
+                console.trace(err.stack);
+                return res.send(err)
+            };
             if (movieA !== null) {
                 res.json(movieA);
             }
             else {
-                
+
                 res.json({ message: 'The movie could not be found.' });
                 return;
-            } 
+            }
         });
     });
 
@@ -252,7 +254,7 @@ router.route('/reviews')
                 newReview.ReviewerName = req.body.ReviewerName;
                 newReview.smallQuote = req.body.smallQuote;
                 newReview.rating = req.body.rating;
-                
+
                 newReview.save(function (err) {
                     if (err) {
                         return res.send({ success: false, message: "Review was not posted." });
