@@ -204,6 +204,39 @@ router.route('/movie')
     });
 
 router.route('/reviews/:id')
+    .post(authJwtController.isAuthenticated, function (req, res) {
+        Movie.findOne({ _id: req.parameter.id }).exec(function (err, movie) {
+            if (err) return res.send(err);
+            //If the movie exists, add new reviews
+            if (movie !== null) {
+                var newReview = new Review();
+
+                newReview.movieId = req.parameter.id;
+
+
+                const usertoken = req.headers.authorization;
+                const token = usertoken.split(' ');
+                const decoded = jwt.verify(token[1], process.env.SECRET_KEY);
+
+                newReview.ReviewerName = decoded.username;
+
+
+
+                newReview.smallQuote = req.body.smallQuote;
+                newReview.rating = req.body.rating;
+
+                newReview.save(function (err) {
+                    if (err) {
+                        return res.send({ success: false, message: "Review was not posted." });
+                    }
+                    return res.json({ message: 'Review posted.' });
+                });
+            }
+            else {
+                return res.json({ message: 'Movie does not exist in the database.' });
+            }
+        });
+    })
     .get(authJwtController.isAuthenticated, function (req, res) {
         if (req.query.reviews === 'true') {
             var id = req.params.id;
@@ -249,39 +282,6 @@ router.route('/reviews/:id')
 
 
 router.route('/reviews')
-    .post(authJwtController.isAuthenticated, function (req, res) {
-        Movie.findOne({ _id: req.parameter.id }).exec(function (err, movie) {
-            if (err) return res.send(err);
-            //If the movie exists, add new reviews
-            if (movie !== null) {
-                var newReview = new Review();
-                
-                newReview.movieId = req.parameter.id;
-
-
-                const usertoken = req.headers.authorization;
-                const token = usertoken.split(' ');
-                const decoded = jwt.verify(token[1], process.env.SECRET_KEY);
-
-                newReview.ReviewerName = decoded.username;
-
-
-
-                newReview.smallQuote = req.body.smallQuote;
-                newReview.rating = req.body.rating;
-
-                newReview.save(function (err) {
-                    if (err) {
-                        return res.send({ success: false, message: "Review was not posted." });
-                    }
-                    return res.json({ message: 'Review posted.' });
-                });
-            }
-            else {
-                return res.json({ message: 'Movie does not exist in the database.' });
-            }
-        });
-    })
     .get(authJwtController.isAuthenticated, function (req, res) {
         if (req.query.reviews === 'true') {
             
