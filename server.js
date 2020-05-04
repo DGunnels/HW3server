@@ -284,7 +284,7 @@ router.route('/reviews')
     })
     .get(authJwtController.isAuthenticated, function (req, res) {
         if (req.query.reviews === 'true') {
-            
+
             //Review.aggregate([
             //    {
             //        '$group': {
@@ -324,7 +324,18 @@ router.route('/reviews')
                         '__v': 1,
                         'movieId': 1,
                         'rating': '$Reviews.rating',
-                        'Reviews': 1
+                        'Reviews': 1,
+                        'avgRating': {
+                            '$group': {
+                                "_id": "$Reviews.movieId",
+                                "avgRate": {
+                                    "$avg": {
+                                        "$sum": "$Reviews.rating"
+                                    }
+                                }
+
+                            }
+                        }
                     }
                 }
             ]).exec((err, movie) => {
