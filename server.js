@@ -305,27 +305,6 @@ router.route('/reviews')
                         'foreignField': 'movieId',
                         'as': 'Reviews'
                     }
-                }, {
-                    '$unwind': {
-                        'path': '$Reviews'
-                    }
-                }, {
-                    '$project': {
-                        'Actors': 1,
-                        'Title': 1,
-                        'Year': 1,
-                        'Genre': 1,
-                        'imageURL': 1,
-                        '__v': 1,
-                        'movieId': 1,
-                        'rating': {
-                            '$avg': {
-                                '$sum': '$Reviews.rating'
-                            }
-                        },
-                        'ReviewerName': '$Reviews.ReviewerName',
-                        'smallQuote': '$Reviews.smallQuote'
-                    }
                 }
             ]).exec((err, movie) => {
                 if (err) return res.json({
