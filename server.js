@@ -299,18 +299,18 @@ router.route('/reviews')
             //])
             Movie.aggregate([
                 {
-                    '$lookup': {
+                    $lookup: {
                         'from': 'reviews',
                         'localField': 'movieId',
                         'foreignField': 'movieId',
                         'as': 'Reviews'
                     }
                 }, {
-                    '$unwind': {
+                    $unwind: {
                         'path': '$Reviews'
                     }
                 }, {
-                    '$project': {
+                    $project: {
                         'Actors': 1,
                         'Title': 1,
                         'Year': 1,
@@ -321,6 +321,15 @@ router.route('/reviews')
                         'rating': '$Reviews.rating',
                         'ReviewerName': '$Reviews.ReviewerName',
                         'smallQuote': '$Reviews.smallQuote'
+                    }
+                }, {
+                    '$group': {
+                        '_id': '$movieId',
+                        'avgRating': {
+                            '$avg': {
+                                '$sum': '$rating'
+                            }
+                        }
                     }
                 }
             ]).exec((err, movie) => {
