@@ -227,7 +227,7 @@ router.route('/reviews/:title')
         }
 
         Movie.findOne({ Title: req.params.title }).exec(function (err, movieA) {
-            if (err) res.send(err);
+            if (err) return res.send(err);
             if (movieA !== null) {
                 res.json(movieA);
             }
