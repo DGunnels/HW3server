@@ -145,7 +145,7 @@ router.route('/movie')
                     movie.save(function (err) {
                         res.json({ message: 'Movie Successfully created.' });
                     })
-                    
+
                 });
             }
         }
@@ -233,7 +233,7 @@ router.route('/reviews/:id')
 
         Movie.findOne({ movieId: req.params.id }).exec(function (err, movieA) {
             if (err) {
-                console.trace(err.stack);
+                //console.trace(err.stack);
                 return res.send(err)
             };
             if (movieA !== null) {
@@ -284,22 +284,50 @@ router.route('/reviews')
     })
     .get(authJwtController.isAuthenticated, function (req, res) {
         if (req.query.reviews === 'true') {
-            
+            //Review.aggregate([
+            //    {
+            //        '$group':
+            //        {
+            //            '_id': '$movieId',
+            //            'avgRating': {
+            //                '$avg': {
+            //                    '$sum': '$rating'
+            //                }
+            //            }
+            //        }
+            //    }
+            //])
             Movie.aggregate([
                 {
-                    $lookup:
-                    {
-                        from: 'reviews',
-                        localField: 'movieId',
-                        foreignField: 'movieId',
-                        as: 'Reviews'
+                    '$lookup': {
+                        'from': 'reviews',
+                        'localField': 'movieId',
+                        'foreignField': 'movieId',
+                        'as': 'Reviews'
+                    }
+                }, {
+                    '$unwind': {
+                        'path': '$Reviews'
+                    }
+                }, {
+                    '$project': {
+                        'Actors': 1,
+                        'Title': 1,
+                        'Year': 1,
+                        'Genre': 1,
+                        'imageURL': 1,
+                        '__v': 1,
+                        'movieId': 1,
+                        'rating': '$Reviews.rating',
+                        'ReviewerName': '$Reviews.ReviewerName',
+                        'smallQuote': '$Reviews.smallQuote'
                     }
                 }
             ]).exec((err, movie) => {
                 if (err) return res.json({
                     message: 'Failed to get the review.'
                 });
-                
+
                 return res.json(movie);
             });
 
