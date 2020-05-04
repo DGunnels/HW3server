@@ -24,7 +24,7 @@ mongoose.connect(process.env.DB, connectOptions, function (error) {
 mongoose.set('useCreateIndex', true);
 
 var reviewerSchema = Schema({
-    movieId: { type: String, required: true },
+    movieId: { type: ObjectId, required: true },
     ReviewerName: { type: String, required: true },
     smallQuote: { type: String, required: true },
     rating: { type: Number, max: 5, min: 1, required: true }
