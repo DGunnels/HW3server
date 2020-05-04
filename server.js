@@ -232,7 +232,7 @@ router.route('/reviews/:title')
                 return res.send(err)
             };
             if (movieA !== null) {
-                res.json(movieA);
+                return res.json(movieA);
             }
             else {
 
@@ -246,7 +246,7 @@ router.route('/reviews/:title')
 router.route('/reviews')
     .post(authJwtController.isAuthenticated, function (req, res) {
         Movie.findOne({ Title: req.body.MovieTitle }).exec(function (err, movie) {
-            if (err) res.send(err);
+            if (err) return res.send(err);
             //If the movie exists, add new reviews
             if (movie !== null) {
                 var newReview = new Review();
@@ -259,11 +259,11 @@ router.route('/reviews')
                     if (err) {
                         return res.send({ success: false, message: "Review was not posted." });
                     }
-                    res.json({ message: 'Review posted.' });
+                    return res.json({ message: 'Review posted.' });
                 });
             }
             else {
-                res.json({ message: 'Movie does not exist in the database.' });
+                return res.json({ message: 'Movie does not exist in the database.' });
             }
         });
     })
@@ -280,15 +280,15 @@ router.route('/reviews')
                     }
                 }
             ]).exec((err, movie) => {
-                if (err) res.json({
+                if (err) return res.json({
                     message: 'Failed to get the review.'
                 });
-                res.json(movie);
+                return res.json(movie);
             });
 
         }
         else {
-            res.json({ message: 'Please ensure your reviews parameter is true.' });
+            return res.json({ message: 'Please ensure your reviews parameter is true.' });
         }
     });
 
