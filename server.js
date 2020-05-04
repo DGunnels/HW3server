@@ -292,6 +292,7 @@ router.route('/reviews')
                 if (err) return res.json({
                     message: 'Failed to get the review.'
                 });
+                console.log(Movie._id);
                 return res.json(movie);
             });
 
