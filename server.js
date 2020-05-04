@@ -218,12 +218,12 @@ router.route('/reviews/:title')
                     }
                 }
             ]).exec((err, movie) => {
-                if (err) res.json({ message: 'Failed to get the review.' });
-                res.json(movie);
+                if (err) return res.json({ message: 'Failed to get the review.' });
+                return res.json(movie);
             });
         }
         else {
-            res.json({ message: 'Please ensure your reviews parameter is true.' });
+            return res.json({ message: 'Please ensure your reviews parameter is true.' });
         }
 
         Movie.findOne({ Title: req.params.title }).exec(function (err, movieA) {
