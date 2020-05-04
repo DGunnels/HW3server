@@ -283,13 +283,13 @@ router.route('/reviews/:id')
 
 router.route('/reviews')
     .post(authJwtController.isAuthenticated, function (req, res) {
-        Movie.findOne({ _id: req.parameter.id }).exec(function (err, movie) {
+        Movie.findOne({ _id: req.body.id }).exec(function (err, movie) {
             if (err) return res.send(err);
             //If the movie exists, add new reviews
             if (movie !== null) {
                 var newReview = new Review();
 
-                newReview.movieId = req.parameter.id;
+                newReview.movieId = req.body.id;
 
 
                 const usertoken = req.headers.authorization;
