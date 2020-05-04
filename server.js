@@ -226,7 +226,7 @@ router.route('/reviews/:id')
             return res.json({ message: 'Please ensure your reviews parameter is true.' });
         }
 
-        Movie.findOne({ Title: req.params.title }).exec(function (err, movieA) {
+        Movie.findOne({ _id: req.params.id }).exec(function (err, movieA) {
             if (err) {
                 console.trace(err.stack);
                 return res.send(err)
@@ -283,8 +283,8 @@ router.route('/reviews')
                     $lookup:
                     {
                         from: 'reviews',
-                        localField: 'Title',
-                        foreignField: 'MovieTitle',
+                        localField: 'id',
+                        foreignField: '_id',
                         as: 'Reviews'
                     }
                 }
