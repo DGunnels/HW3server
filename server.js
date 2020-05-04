@@ -227,12 +227,15 @@ router.route('/reviews/:title')
         }
 
         Movie.findOne({ Title: req.params.title }).exec(function (err, movieA) {
-            if (err) return res.send(err);
+            // if (err) return res.send(err);
             if (movieA !== null) {
                 res.json(movieA);
             }
-            else {
+            else if (err) {
                 res.json({ message: 'The movie could not be found.' });
+                return;
+            } else {
+                return;
             }
         });
     });
