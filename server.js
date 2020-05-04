@@ -237,7 +237,7 @@ router.route('/reviews/:id')
                 return res.send(err)
             };
             if (movieA !== null) {
-                return res.json(movieA);
+                //return res.json(movieA);
             }
             else {
 
