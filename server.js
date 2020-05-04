@@ -205,14 +205,14 @@ router.route('/reviews/:id')
             Movie.aggregate([
                 {
                     $match: {
-                        _id: id
+                        movieId: id
                     }
                 },
                 {
                     $lookup:
                     {
                         from: 'reviews',
-                        localField: 'id',
+                        localField: 'movieId',
                         foreignField: '_id',
                         as: 'Reviews'
                     }
@@ -245,12 +245,12 @@ router.route('/reviews/:id')
 
 router.route('/reviews')
     .post(authJwtController.isAuthenticated, function (req, res) {
-        Movie.findOne({ _id: req.body.id }).exec(function (err, movie) {
+        Movie.findOne({ movieId: req.body.id }).exec(function (err, movie) {
             if (err) return res.send(err);
             //If the movie exists, add new reviews
             if (movie !== null) {
                 var newReview = new Review();
-                newReview._id = req.body.id;
+                newReview.movieId = req.body.id;
 
 
                 const usertoken = req.headers.authorization;
@@ -283,7 +283,7 @@ router.route('/reviews')
                     $lookup:
                     {
                         from: 'reviews',
-                        localField: '_id',
+                        localField: 'movieId',
                         foreignField: '_id',
                         as: 'Reviews'
                     }
