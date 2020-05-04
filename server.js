@@ -213,7 +213,7 @@ router.route('/reviews/:id')
                     {
                         from: 'reviews',
                         localField: '_id',
-                        foreignField: 'movieId',
+                        foreignField: ObjectId('movieId'),
                         as: 'Reviews'
                     }
                 }
