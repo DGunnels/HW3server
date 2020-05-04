@@ -131,6 +131,7 @@ router.route('/movie')
                 movie.Year = req.body.Year;
                 movie.Genre = req.body.Genre;
                 movie.Actors = req.body.Actors;
+                movie.imageURL = req.body.imgURL;
 
                 movie.save(function (err) {
                     if (err) {
@@ -161,6 +162,7 @@ router.route('/movie')
                 movie.Year = req.body.Year;
                 movie.Genre = req.body.Genre;
                 movie.Actors = req.body.Actors;
+                movie.imgURL = req.body.imgURL;
 
                 movie.save(function (err) {
                     if (err) {
