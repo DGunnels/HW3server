@@ -140,8 +140,11 @@ router.route('/movie')
                         else
                             return res.send(err);
                     }
-
-                    res.json({ message: 'Movie Successfully created.' });
+                    movie.movieId = movie._id;
+                    movie.save(function (err) {
+                        res.json({ message: 'Movie Successfully created.' });
+                    })
+                    
                 });
             }
         }
@@ -205,15 +208,15 @@ router.route('/reviews/:id')
             Movie.aggregate([
                 {
                     $match: {
-                        _id: ObjectId('id')
+                        movieId: id
                     }
                 },
                 {
                     $lookup:
                     {
                         from: 'reviews',
-                        localField: '_id',
-                        foreignField: ObjectId('movieId'),
+                        localField: 'movieId',
+                        foreignField: 'movieId',
                         as: 'Reviews'
                     }
                 }
@@ -226,7 +229,7 @@ router.route('/reviews/:id')
             return res.json({ message: 'Please ensure your reviews parameter is true.' });
         }
 
-        Movie.findOne({ _id: req.params.id }).exec(function (err, movieA) {
+        Movie.findOne({ movieId: req.params.id }).exec(function (err, movieA) {
             if (err) {
                 console.trace(err.stack);
                 return res.send(err)
@@ -278,12 +281,13 @@ router.route('/reviews')
     })
     .get(authJwtController.isAuthenticated, function (req, res) {
         if (req.query.reviews === 'true') {
+            
             Movie.aggregate([
                 {
                     $lookup:
                     {
                         from: 'reviews',
-                        localField: '_id',
+                        localField: 'movieId',
                         foreignField: 'movieId',
                         as: 'Reviews'
                     }
@@ -292,7 +296,7 @@ router.route('/reviews')
                 if (err) return res.json({
                     message: 'Failed to get the review.'
                 });
-                console.log(Movie._id);
+                
                 return res.json(movie);
             });
 
