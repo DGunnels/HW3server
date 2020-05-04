@@ -284,10 +284,10 @@ router.route('/reviews')
     })
     .get(authJwtController.isAuthenticated, function (req, res) {
         if (req.query.reviews === 'true') {
+            
             //Review.aggregate([
             //    {
-            //        '$group':
-            //        {
+            //        '$group': {
             //            '_id': '$movieId',
             //            'avgRating': {
             //                '$avg': {
@@ -296,7 +296,12 @@ router.route('/reviews')
             //            }
             //        }
             //    }
-            //])
+            //]).exec((err, review) => {
+            //    if (err) return res.json({
+            //        message: 'Failed to fetch reviews.'
+            //    });
+            //    return res.json(review)
+            //});
             Movie.aggregate([
                 {
                     '$lookup': {
@@ -304,6 +309,22 @@ router.route('/reviews')
                         'localField': 'movieId',
                         'foreignField': 'movieId',
                         'as': 'Reviews'
+                    }
+                }, {
+                    '$unwind': {
+                        'path': '$Reviews'
+                    }
+                }, {
+                    '$project': {
+                        'Actors': 1,
+                        'Title': 1,
+                        'Year': 1,
+                        'Genre': 1,
+                        'imageURL': 1,
+                        '__v': 1,
+                        'movieId': 1,
+                        'rating': '$Reviews.rating',
+                        'Reviews': 1
                     }
                 }
             ]).exec((err, movie) => {
