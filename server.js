@@ -205,7 +205,7 @@ router.route('/reviews/:id')
             Movie.aggregate([
                 {
                     $match: {
-                        _id: id
+                        _id: ObjectId('id')
                     }
                 },
                 {
