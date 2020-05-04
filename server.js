@@ -232,10 +232,10 @@ router.route('/reviews/:title')
                 res.json(movieA);
             }
             else if (err) {
-                res.send('The movie could not be found.' );
+                res.json({ message: 'The movie could not be found.' });
                 return;
             } else {
-                res.send('This is just the else.');
+                res.json({ message: 'This is just the else.' });
                 return;
             }
         });
