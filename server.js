@@ -257,7 +257,7 @@ router.route('/reviews')
                 const token = usertoken.split(' ');
                 const decoded = jwt.verify(token[1], process.env.SECRET_KEY);
                 console.log(decoded);
-                newReview.ReviewerName = decoded;
+                newReview.ReviewerName = decoded.username;
 
 
 
