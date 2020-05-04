@@ -237,7 +237,7 @@ router.route('/reviews/:title')
             else {
 
                 return res.json({ message: 'The movie could not be found.' });
-                
+
             }
         });
     });
@@ -251,7 +251,16 @@ router.route('/reviews')
             if (movie !== null) {
                 var newReview = new Review();
                 newReview.MovieTitle = req.body.MovieTitle;
-                newReview.ReviewerName = req.body.ReviewerName;
+
+
+                const usertoken = req.headers.authorization;
+                const token = usertoken.split(' ');
+                const decoded = jwt.verify(token[1], process.env.SECRET_KEY);
+                console.log(decoded);
+                newReview.ReviewerName = decoded;
+
+
+
                 newReview.smallQuote = req.body.smallQuote;
                 newReview.rating = req.body.rating;
 
