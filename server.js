@@ -226,7 +226,7 @@ router.route('/reviews/:title')
             res.json({ message: 'Please ensure your reviews parameter is true.' });
         }
 
-        Movie.findOne({ Title: req.params.title }).exec(function (err, movieA) {
+        Movie.findOne({ Title: req.params.title }, (function (err, movieA) {
             if (err) return res.send(err);
             if (movieA !== null) {
                 res.json(movieA);
@@ -236,7 +236,7 @@ router.route('/reviews/:title')
                 res.json({ message: 'The movie could not be found.' });
                 return;
             } 
-        });
+        }))
     });
 
 
