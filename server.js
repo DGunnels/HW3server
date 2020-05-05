@@ -319,7 +319,6 @@ router.route('/reviews')
                         "imageURL": 1,
                         "__v": 1,
                         "movieId": 1,
-                        "rating": "$Reviews.rating",
                         "Reviews": 1,
                         "avgRating": {
                             "$round": [{ "$avg": "$Reviews.rating" }, 1]
