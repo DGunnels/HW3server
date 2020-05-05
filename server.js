@@ -104,8 +104,8 @@ router.post('/signin', function (req, res) {
         if (err) return res.send(err);
 
         if (!user) {
-            res.json({ success: false, message: 'wat' });
-            res.statusCode(400);
+            res.status(400).send({ success: false, message: 'Username does not exist. \n \n wat' });
+            
             return;
         }
 
