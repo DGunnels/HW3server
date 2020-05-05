@@ -304,37 +304,25 @@ router.route('/reviews')
             //});
             Movie.aggregate([
                 {
-                    '$lookup': {
+                    $lookup: {
                         'from': 'reviews',
                         'localField': 'movieId',
                         'foreignField': 'movieId',
                         'as': 'Reviews'
                     }
                 }, {
-                    '$unwind': {
-                        'path': '$Reviews'
-                    }
-                }, {
-                    '$project': {
-                        'Actors': 1,
-                        'Title': 1,
-                        'Year': 1,
-                        'Genre': 1,
-                        'imageURL': 1,
-                        '__v': 1,
-                        'movieId': 1,
-                        'rating': '$Reviews.rating',
-                        'Reviews': 1,
-                        'avgRating': {
-                            '$group': {
-                                "_id": "$Reviews.movieId",
-                                "avgRate": {
-                                    "$avg": {
-                                        "$sum": "$Reviews.rating"
-                                    }
-                                }
-
-                            }
+                    $project: {
+                        "Actors": 1,
+                        "Title": 1,
+                        "Year": 1,
+                        "Genre": 1,
+                        "imageURL": 1,
+                        "__v": 1,
+                        "movieId": 1,
+                        "rating": "$Reviews.rating",
+                        "Reviews": 1,
+                        "avgRating": {
+                            "$avg": "$Reviews.rating"
                         }
                     }
                 }
