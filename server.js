@@ -284,24 +284,6 @@ router.route('/reviews')
     })
     .get(authJwtController.isAuthenticated, function (req, res) {
         if (req.query.reviews === 'true') {
-
-            //Review.aggregate([
-            //    {
-            //        '$group': {
-            //            '_id': '$movieId',
-            //            'avgRating': {
-            //                '$avg': {
-            //                    '$sum': '$rating'
-            //                }
-            //            }
-            //        }
-            //    }
-            //]).exec((err, review) => {
-            //    if (err) return res.json({
-            //        message: 'Failed to fetch reviews.'
-            //    });
-            //    return res.json(review)
-            //});
             Movie.aggregate([
                 {
                     $lookup: {
@@ -339,6 +321,53 @@ router.route('/reviews')
         else {
             return res.json({ message: 'Please ensure your reviews parameter is true.' });
         }
+    });
+
+router.route('/')
+    .get(authJwtController.isAuthenticated, function (req, res) {
+        if (req.query.reviews === 'true') {
+            Movie.aggregate([
+                {
+                    $lookup: {
+                        'from': 'reviews',
+                        'localField': 'movieId',
+                        'foreignField': 'movieId',
+                        'as': 'Reviews'
+                    }
+                }, {
+                    $project: {
+                        "Actors": 1,
+                        "Title": 1,
+                        "Year": 1,
+                        "Genre": 1,
+                        "imageURL": 1,
+                        "__v": 1,
+                        "movieId": 1,
+                        "Reviews": 1,
+                        "avgRating": {
+                            "$round": [{ "$avg": "$Reviews.rating" }, 1]
+                        }
+                    }
+                }, {
+                    $sort: { "avgRating": -1 }
+                },
+                { $limit: 5 }
+            ]).exec((err, movie) => {
+                if (err) return res.json({
+                    message: 'Failed to get the review.'
+                });
+
+                return res.json(movie);
+            });
+
+        }
+        else {
+            return res.json({ message: 'Please ensure your reviews parameter is true.' });
+        }
+    })
+    .all(function (req, res) {
+        res.status(405);
+        res.send('Error: 405 \n Unsupported HTTP Method');
     });
 
 
