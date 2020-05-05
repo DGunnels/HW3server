@@ -101,10 +101,6 @@ router.post('/signin', function (req, res) {
     User.findOne({ username: userNew.username }).select('name username password').exec(function (err, user) {
         if (err) return res.send(err);
 
-        if (User.username != userNew.username) {
-            return res.send(err);
-        }
-
 
         user.comparePassword(userNew.password, function (isMatch) {
             if (isMatch) {

@@ -53,6 +53,10 @@ UserSchema.pre('save', function (next) {
 UserSchema.methods.comparePassword = function (password, callback) {
     var user = this;
 
+    if (user === null) {
+        return res.json({message: 'User not found.'})
+    }
+
     bcrypt.compare(password, user.password, function (err, isMatch) {
         callback(isMatch);
     });
