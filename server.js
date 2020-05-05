@@ -98,12 +98,15 @@ router.post('/signin', function (req, res) {
     userNew.username = req.body.username;
     userNew.password = req.body.password;
 
+
+
     User.findOne({ username: userNew.username }).select('name username password').exec(function (err, user) {
         if (err) return res.send(err);
 
-        if (User.findOne({ username: userNew.username }).select('name username password') === null) {
-            return res.json({message: 'wat.'})
+        if (!user) {
+            return res.json({message: 'wat'})
         }
+
         user.comparePassword(userNew.password, function (isMatch) {
             if (isMatch) {
                 var userToken = { id: user._id, username: user.username };
