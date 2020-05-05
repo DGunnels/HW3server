@@ -104,7 +104,7 @@ router.post('/signin', function (req, res) {
         if (err) return res.send(err);
 
         if (!user) {
-            return res.json({message: 'wat'})
+            return res.json({ success: false, message: 'wat'})
         }
 
         user.comparePassword(userNew.password, function (isMatch) {
