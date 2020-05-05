@@ -322,7 +322,7 @@ router.route('/reviews')
                         "rating": "$Reviews.rating",
                         "Reviews": 1,
                         "avgRating": {
-                            "$avg": "$Reviews.rating"
+                            "$round": [{ "$avg": "$Reviews.rating" }, 1]
                         }
                     }
                 }
