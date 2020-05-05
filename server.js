@@ -326,7 +326,7 @@ router.route('/reviews')
                         }
                     }
                 }, {
-                    $sort: { "$avgRating": -1 }
+                    $sort: { "avgRating": -1 }
                 }
             ]).exec((err, movie) => {
                 if (err) return res.json({
