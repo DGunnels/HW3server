@@ -325,8 +325,6 @@ router.route('/reviews')
                             "$round": [{ "$avg": "$Reviews.rating" }, 1]
                         }
                     }
-                }, {
-                    $sort: { "avgRating": -1 }
                 }
             ]).exec((err, movie) => {
                 if (err) return res.json({
