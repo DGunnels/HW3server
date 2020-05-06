@@ -6,7 +6,7 @@ const connectOptions = {
     useNewUrlParser: true,
     useCreateIndex: true,
     user: process.env.DBuser,
-    pass: process.env.DBpass,
+    pass: process.env.DBpass, 
     dbName: 'HW3'
 }
 try {

@@ -7,7 +7,7 @@ var Movie = require('./movies');
 var Review = require('./Reviews');
 var jwt = require('jsonwebtoken');
 var cors = require('cors');
-var app = express();
+var app = express(); 
 
 module.exports = app; // for testing
 app.use(bodyParser.json());

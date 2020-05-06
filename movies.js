@@ -8,7 +8,7 @@ const connectOptions = {
     user: process.env.DBuser,
     pass: process.env.DBpass, 
     dbName: 'HW3'
-}
+} 
 try {
     mongoose.Promise = global.Promise;
 }
